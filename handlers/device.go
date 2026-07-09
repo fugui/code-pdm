@@ -252,7 +252,7 @@ func ExportDevices(c *gin.Context) {
 	}
 
 	c.Header("Content-Type", "text/csv; charset=utf-8")
-	c.Header("Content-Disposition", "attachment; filename=devices.csv")
+	c.Header("Content-Disposition", "attachment; filename=machines.csv")
 
 	// 写入 UTF-8 BOM 使得 Excel 直接打开不会出现中文乱码
 	c.Writer.Write([]byte{0xEF, 0xBB, 0xBF})
@@ -261,7 +261,7 @@ func ExportDevices(c *gin.Context) {
 	defer writer.Flush()
 
 	// 写入表头
-	writer.Write([]string{"内部序号 ID", "设备 ID (标识符)", "前缀字母", "后缀数字", "设备实体名称", "所属大类名称", "可见大类主型号", "登记/出厂日期", "详细备注/说明", "创建时间"})
+	writer.Write([]string{"序号", "设备 ID (标识符)", "前缀字母", "后缀数字", "设备实体名称", "所属设备大类名称", "设备大类主型号", "登记/出厂日期", "详细备注/说明", "创建时间"})
 
 	for _, d := range list {
 		typeName := "未分类"

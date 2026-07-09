@@ -282,12 +282,12 @@ export default function App({ isEmbedded = false }: { isEmbedded?: boolean }) {
               {
                 key: 'device-types',
                 icon: <ApartmentOutlined />,
-                label: <Link to="/device-types">设备类型管理</Link>,
+                label: <Link to="/device-types">机器类型管理</Link>,
               },
               {
                 key: 'devices',
                 icon: <DatabaseOutlined />,
-                label: <Link to="/devices">设备ID管理</Link>,
+                label: <Link to="/devices">机器ID管理</Link>,
               },
             ]}
           />
@@ -296,7 +296,7 @@ export default function App({ isEmbedded = false }: { isEmbedded?: boolean }) {
         <Layout style={{ background: 'transparent' }}>
           <Header style={{ background: 'var(--card-bg)', borderBottom: '1px solid var(--border-color)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 24px', transition: 'background-color 0.3s, border-color 0.3s' }}>
             <span style={{ fontSize: '16px', fontWeight: 600, color: 'var(--text-color)' }}>
-              {getSelectedKey() === 'devices' ? '设备 ID 档案管理' : '设备类型管理'}
+              {getSelectedKey() === 'devices' ? '机器 ID 档案管理' : '机器类型管理'}
             </span>
             {user && (
               <Space>

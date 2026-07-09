@@ -93,14 +93,13 @@ export default function DeviceTypePage() {
       message.success('删除设备类型成功');
       fetchData();
     } catch (err: any) {
-      message.error(err.message || '删除失败');
+      message.error(err.message || '删除失败，该类型下可能有关联的设备');
     }
   };
 
   // 提交表单 (新建/修改)
-  const handleModalSubmit = async () => {
+  const handleModalSubmit = async (values: any) => {
     try {
-      const values = await form.validateFields();
       if (editingItem) {
         // 修改
         await apiFetch(`/device-types/${editingItem.id}`, {
@@ -143,7 +142,7 @@ export default function DeviceTypePage() {
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
-        a.download = 'device_types.csv';
+        a.download = 'machine_types.csv';
         a.click();
         URL.revokeObjectURL(url);
         message.success('设备类型档案导出成功');
@@ -159,7 +158,7 @@ export default function DeviceTypePage() {
   // 表格列定义
   const columns = [
     {
-      title: '内部序号 ID',
+      title: '序号',
       dataIndex: 'id',
       key: 'id',
       width: 120,
@@ -230,16 +229,25 @@ export default function DeviceTypePage() {
   return (
     <div style={{ padding: '20px' }}>
       <Card
-        title="设备类型管理 (Device Types)"
+        title="设备类型管理 (Machine Types)"
         extra={
-          <Button
-            type="primary"
-            icon={<PlusOutlined />}
-            disabled={!isAdmin}
-            onClick={handleCreate}
-          >
-            新建设备类型
-          </Button>
+          <Space>
+            <Button
+              type="primary"
+              icon={<PlusOutlined />}
+              disabled={!isAdmin}
+              onClick={handleCreate}
+            >
+              新建设备类型
+            </Button>
+            <Button
+              icon={<DownloadOutlined />}
+              onClick={handleExport}
+              style={{ background: '#52c41a', borderColor: '#52c41a', color: '#fff' }}
+            >
+              导出 Excel
+            </Button>
+          </Space>
         }
         bordered={false}
         style={{
@@ -274,9 +282,6 @@ export default function DeviceTypePage() {
           <Button icon={<ReloadOutlined />} onClick={handleResetSearch}>
             重置
           </Button>
-          <Button icon={<DownloadOutlined />} onClick={handleExport} style={{ background: '#52c41a', borderColor: '#52c41a', color: '#fff' }}>
-            导出 Excel
-          </Button>
           {!isAdmin && (
             <Tag color="warning" style={{ marginLeft: 'auto', borderRadius: '4px', padding: '4px 8px' }}>
               只读模式：仅管理员支持编辑
@@ -300,17 +305,17 @@ export default function DeviceTypePage() {
       <Modal
         title={editingItem ? '编辑设备类型' : '创建新设备类型'}
         open={isModalOpen}
-        onOk={handleModalSubmit}
+        onOk={() => form.submit()}
         onCancel={() => setIsModalOpen(false)}
-        okText="保存"
+        okText="确认"
         cancelText="取消"
         destroyOnClose
-        maskClosable={false}
         width={500}
       >
         <Form
           form={form}
           layout="vertical"
+          onFinish={handleModalSubmit}
           style={{ marginTop: '20px' }}
         >
           <Form.Item
@@ -318,20 +323,17 @@ export default function DeviceTypePage() {
             label={
               <Space>
                 <span>设备型号 (Model)</span>
-                <Tooltip title="由1至2位英文字母加上数字组成，中间可带冒号 (如: A100, BC:888, AB999)">
-                  <span style={{ color: '#1890ff', cursor: 'pointer', fontSize: '12px' }}>查看格式规范</span>
+                <Tooltip title="用户可见的型号，由1-2位字母+数字组成，中间可带英文冒号。例如：E10、AB:99">
+                  <span style={{ color: '#1890ff', cursor: 'pointer', fontSize: '12px' }}>格式要求</span>
                 </Tooltip>
               </Space>
             }
             rules={[
               { required: true, message: '请输入设备型号' },
-              {
-                pattern: modelRegex,
-                message: '型号格式错误！规范：1至2位字母 + 数字，中间可能有冒号',
-              },
+              { pattern: /^[a-zA-Z]{1,2}:?[0-9]+$/, message: '型号格式无效，应为1-2位字母+数字组成，如 E:101' }
             ]}
           >
-            <Input placeholder="输入可见型号，如：BC:1024, AB999, A:12" />
+            <Input placeholder="例如: E10 或 AB:99" />
           </Form.Item>
 
           <Form.Item

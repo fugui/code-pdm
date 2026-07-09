@@ -196,7 +196,7 @@ export default function DevicePage() {
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
-        a.download = 'devices.csv';
+        a.download = 'machines.csv';
         a.click();
         URL.revokeObjectURL(url);
         message.success('设备档案导出成功');
@@ -211,7 +211,7 @@ export default function DevicePage() {
 
   const columns = [
     {
-      title: '系统设备 ID',
+      title: '设备 ID',
       dataIndex: 'device_id',
       key: 'device_id',
       width: 150,
@@ -295,16 +295,25 @@ export default function DevicePage() {
   return (
     <div style={{ padding: '20px' }}>
       <Card
-        title="设备 ID 档案管理 (Device IDs)"
+        title="设备 ID 档案管理 (Machine IDs)"
         extra={
-          <Button
-            type="primary"
-            icon={<PlusOutlined />}
-            disabled={!isAdmin}
-            onClick={handleCreate}
-          >
-            录入新设备
-          </Button>
+          <Space>
+            <Button
+              type="primary"
+              icon={<PlusOutlined />}
+              disabled={!isAdmin}
+              onClick={handleCreate}
+            >
+              录入新设备
+            </Button>
+            <Button
+              icon={<DownloadOutlined />}
+              onClick={handleExport}
+              style={{ background: '#52c41a', borderColor: '#52c41a', color: '#fff' }}
+            >
+              导出 Excel
+            </Button>
+          </Space>
         }
         bordered={false}
         style={{
@@ -349,9 +358,6 @@ export default function DevicePage() {
           </Button>
           <Button icon={<ReloadOutlined />} onClick={handleResetSearch}>
             重置
-          </Button>
-          <Button icon={<DownloadOutlined />} onClick={handleExport} style={{ background: '#52c41a', borderColor: '#52c41a', color: '#fff' }}>
-            导出 Excel
           </Button>
           {!isAdmin && (
             <Tag color="warning" style={{ marginLeft: 'auto', borderRadius: '4px', padding: '4px 8px' }}>
