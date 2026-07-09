@@ -11,7 +11,6 @@ import (
 	"code-pdm/utils"
 
 	"github.com/gin-gonic/gin"
-	"gorm.io/gorm"
 )
 
 // GetDevices 获取设备列表（支持关联 DeviceType，并支持模糊筛选）
@@ -65,10 +64,11 @@ func GetDevice(c *gin.Context) {
 	c.JSON(http.StatusOK, dev)
 }
 
-// CreateDevice 创建设备（核心：生成全局唯一的四位随机后缀，附带事务碰撞重试）
+// CreateDevice 创建设备（由前端提供已生成的四位唯一后缀）
 func CreateDevice(c *gin.Context) {
 	var req struct {
 		Letter       string `json:"letter" binding:"required"` // 单字母前缀
+		Number       string `json:"number" binding:"required"` // 前端指定的四位唯一后缀
 		Name         string `json:"name" binding:"required"`
 		Description  string `json:"description"`
 		Date         string `json:"date"` // YYYY-MM-DD
@@ -76,7 +76,7 @@ func CreateDevice(c *gin.Context) {
 	}
 
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "请填写必要字段（前缀字母、名称、设备类型）"})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "请填写必要字段（前缀字母、数字后缀、名称、设备类型）"})
 		return
 	}
 
@@ -87,79 +87,79 @@ func CreateDevice(c *gin.Context) {
 		return
 	}
 
-	// 2. 验证设备类型是否存在
+	// 2. 验证后缀数字格式
+	suffix := strings.TrimSpace(req.Number)
+	if len(suffix) != 4 {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "数字后缀必须为 4 位"})
+		return
+	}
+	for _, r := range suffix {
+		if r < '0' || r > '9' {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "数字后缀必须全为数字(0-9)"})
+			return
+		}
+	}
+
+	// 3. 验证设备类型是否存在
 	var dt models.DeviceType
 	if err := models.DB.First(&dt, req.DeviceTypeID).Error; err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "所选设备类型不存在"})
 		return
 	}
 
-	// 3. 处理登记日期，若为空默认为当天
+	// 4. 处理登记日期，若为空默认为当天
 	dateStr := strings.TrimSpace(req.Date)
 	if dateStr == "" {
 		dateStr = time.Now().Format("2006-01-02")
 	} else {
-		// 简单格式验证
 		if _, err := time.Parse("2006-01-02", dateStr); err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{"error": "登记日期格式无效，请使用 YYYY-MM-DD 格式"})
 			return
 		}
 	}
 
-	// 4. 重试循环创建记录以抗击并发唯一索引冲突
-	var savedDevice models.Device
-	maxRetries := 10
-	success := false
-
-	for attempt := 0; attempt < maxRetries; attempt++ {
-		// 在事务中写入
-		err = models.DB.Transaction(func(tx *gorm.DB) error {
-			// 生成当时唯一的四位数字
-			suffix, genErr := utils.GenerateUniqueNumber(tx)
-			if genErr != nil {
-				return genErr
-			}
-
-			dev := models.Device{
-				Letter:       prefix,
-				Number:       suffix,
-				DeviceID:     prefix + suffix,
-				Name:         strings.TrimSpace(req.Name),
-				Description:  strings.TrimSpace(req.Description),
-				Date:         dateStr,
-				DeviceTypeID: req.DeviceTypeID,
-			}
-
-			// 尝试写入
-			if insertErr := tx.Create(&dev).Error; insertErr != nil {
-				return insertErr
-			}
-
-			savedDevice = dev
-			return nil
-		})
-
-		if err == nil {
-			success = true
-			break
-		}
-
-		// 检查是否是由于唯一约束冲突导致，如果是则继续重试，否则立即退出
-		if strings.Contains(err.Error(), "UNIQUE") || strings.Contains(err.Error(), "unique") {
-			// 并发碰撞，重新生成后缀并保存
-			continue
-		} else {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": "保存设备失败: " + err.Error()})
-			return
-		}
+	// 5. 校验数据库查重
+	var count int64
+	if err := models.DB.Model(&models.Device{}).Where("number = ?", suffix).Count(&count).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "验证数字唯一性失败"})
+		return
 	}
-
-	if !success {
-		c.JSON(http.StatusConflict, gin.H{"error": "设备ID后缀生成冲突，重试上限已满。请稍后再试。"})
+	if count > 0 {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "此四位数字后缀已被其他设备占用，请点击重新生成"})
 		return
 	}
 
-	c.JSON(http.StatusCreated, savedDevice)
+	// 6. 创建设备
+	dev := models.Device{
+		Letter:       prefix,
+		Number:       suffix,
+		DeviceID:     prefix + suffix,
+		Name:         strings.TrimSpace(req.Name),
+		Description:  strings.TrimSpace(req.Description),
+		Date:         dateStr,
+		DeviceTypeID: req.DeviceTypeID,
+	}
+
+	if err := models.DB.Create(&dev).Error; err != nil {
+		if strings.Contains(err.Error(), "UNIQUE") || strings.Contains(err.Error(), "unique") {
+			c.JSON(http.StatusConflict, gin.H{"error": "该设备后缀由于并发已被抢占，请点击重新生成并提交"})
+			return
+		}
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "保存设备失败: " + err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusCreated, dev)
+}
+
+// GenerateSuffix 生成一个当前全局未使用的、随机的 4 位数字后缀 (0000-9999)
+func GenerateSuffix(c *gin.Context) {
+	suffix, err := utils.GenerateUniqueNumber(models.DB)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "生成唯一后缀失败: " + err.Error()})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"suffix": suffix})
 }
 
 // UpdateDevice 修改设备（仅允许修改描述性字段，不允许修改物理分配的设备ID后缀）

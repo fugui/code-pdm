@@ -77,6 +77,7 @@ func main() {
 		// 设备 ID 路由
 		protected.GET("/devices", handlers.GetDevices)
 		protected.GET("/devices/:id", handlers.GetDevice)
+		protected.GET("/devices/generate-suffix", handlers.GenerateSuffix)
 		protected.GET("/device-types/export", handlers.ExportDeviceTypes)
 		protected.GET("/devices/export", handlers.ExportDevices)
 
