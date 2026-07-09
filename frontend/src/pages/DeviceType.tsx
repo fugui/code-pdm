@@ -160,10 +160,9 @@ export default function DeviceTypePage() {
   const columns = [
     {
       title: '序号',
-      dataIndex: 'id',
-      key: 'id',
+      key: 'index',
       width: 120,
-      sorter: (a: DeviceType, b: DeviceType) => a.id - b.id,
+      render: (_: any, record: DeviceType) => data.indexOf(record) + 1,
     },
     {
       title: '设备型号 (Machine Type)',
