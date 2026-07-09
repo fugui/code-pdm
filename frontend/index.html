@@ -4,6 +4,15 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>产品数据管理 (PDM)</title>
+    <script>
+      // 同步阻塞脚本：在首次渲染前应用主题 class，防止亮色主题刷新时闪烁暗色
+      (function() {
+        var theme = localStorage.getItem('code-theme');
+        if (theme === 'light') {
+          document.documentElement.classList.add('light-theme');
+        }
+      })();
+    </script>
   </head>
   <body>
     <div id="root"></div>

@@ -138,7 +138,11 @@ export default function App({ isEmbedded = false }: { isEmbedded?: boolean }) {
   const navigate = useNavigate();
   const [user, setUser] = useState<any>(null);
   const [loadingUser, setLoadingUser] = useState(true);
-  const [currentTheme, setCurrentTheme] = useState<'dark' | 'light'>('dark');
+  const [currentTheme, setCurrentTheme] = useState<'dark' | 'light'>(() => {
+    const saved = localStorage.getItem('code-theme');
+    if (saved === 'dark' || saved === 'light') return saved;
+    return document.documentElement.classList.contains('light-theme') ? 'light' : 'dark';
+  });
 
   useEffect(() => {
     const checkTheme = () => {
