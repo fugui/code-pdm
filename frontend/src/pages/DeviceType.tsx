@@ -166,7 +166,7 @@ export default function DeviceTypePage() {
       sorter: (a: DeviceType, b: DeviceType) => a.id - b.id,
     },
     {
-      title: '设备型号 (Model)',
+      title: '设备型号 (Machine Type)',
       dataIndex: 'model',
       key: 'model',
       render: (text: string) => <strong style={{ color: 'var(--primary-color)' }}>{text}</strong>,
@@ -323,7 +323,7 @@ export default function DeviceTypePage() {
             name="model"
             label={
               <Space>
-                <span>设备型号 (Model)</span>
+                <span>设备型号 (Machine Type)</span>
                 <Tooltip title="用户可见的型号，由1-2位字母+数字组成，中间可带英文冒号。例如：E10、AB:99">
                   <span style={{ color: '#1890ff', cursor: 'pointer', fontSize: '12px' }}>格式要求</span>
                 </Tooltip>

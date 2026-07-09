@@ -240,7 +240,7 @@ export default function DevicePage() {
       render: (text: string) => text || <span style={{ color: '#8c8c8c', fontStyle: 'italic' }}>暂无描述</span>,
     },
     {
-      title: '登记/出厂日期',
+      title: '登记日期',
       dataIndex: 'date',
       key: 'date',
       width: 150,
@@ -484,12 +484,12 @@ export default function DevicePage() {
             label="设备实体名称"
             rules={[{ required: true, message: '请输入设备名称' }]}
           >
-            <Input placeholder="输入特定的物理设备标志名，例如: 北京机房主控01" />
+            <Input placeholder="输入特定的物理设备标志名，例如: 1A 或 1B" />
           </Form.Item>
 
           <Form.Item
             name="date"
-            label="登记/出厂日期"
+            label="登记日期"
             rules={[{ required: true, message: '请选择登记日期' }]}
           >
             <DatePicker style={{ width: '100%' }} placeholder="选择出厂/入库登记日期" />

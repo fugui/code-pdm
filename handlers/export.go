@@ -56,7 +56,7 @@ func ExportAllExcel(c *gin.Context) {
 	}
 
 	// 写入表头
-	headersTypes := []string{"序号", "设备型号 (Model)", "设备大类名称", "详细说明/备注", "创建时间"}
+	headersTypes := []string{"序号", "设备型号 (Machine Type)", "设备大类名称", "详细说明/备注", "创建时间"}
 	for colIdx, name := range headersTypes {
 		cell, _ := excelize.CoordinatesToCellName(colIdx+1, 1)
 		f.SetCellValue(sheetTypes, cell, name)
@@ -85,7 +85,7 @@ func ExportAllExcel(c *gin.Context) {
 	}
 
 	// 写入表头
-	headersDevices := []string{"序号", "设备 ID (标识符)", "前缀字母", "后缀数字", "设备实体名称", "所属设备大类名称", "设备大类主型号", "登记/出厂日期", "详细备注/说明", "创建时间"}
+	headersDevices := []string{"序号", "设备 ID (标识符)", "前缀字母", "后缀数字", "设备实体名称", "所属设备大类名称", "设备大类主型号", "登记日期", "详细备注/说明", "创建时间"}
 	for colIdx, name := range headersDevices {
 		cell, _ := excelize.CoordinatesToCellName(colIdx+1, 1)
 		f.SetCellValue(sheetDevices, cell, name)
