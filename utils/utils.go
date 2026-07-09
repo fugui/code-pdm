@@ -69,20 +69,13 @@ func ParseToken(tokenString string) (*Claims, error) {
 	return claims, nil
 }
 
-// FormatLetter 校验并格式化设备ID首字母（必须是单个字母，且转换为大写）
+// FormatLetter 校验并格式化设备ID首字母（目前系统仅支持大写 'E' 或 'L'）
 func FormatLetter(letter string) (string, error) {
-	letter = strings.TrimSpace(letter)
-	if len(letter) != 1 {
-		return "", errors.New("首字母必须为单个英文字符")
+	letter = strings.ToUpper(strings.TrimSpace(letter))
+	if letter == "E" || letter == "L" {
+		return letter, nil
 	}
-	char := letter[0]
-	if (char >= 'a' && char <= 'z') || (char >= 'A' && char <= 'Z') {
-		if char >= 'a' {
-			char = char - 'a' + 'A' // 转为大写
-		}
-		return string(char), nil
-	}
-	return "", errors.New("首字母必须为英文字母")
+	return "", errors.New("首字母前缀当前仅支持 'E' 或 'L'")
 }
 
 // GenerateUniqueNumber 随机生成全局不重复的四位数字 (0000-9999) 后缀

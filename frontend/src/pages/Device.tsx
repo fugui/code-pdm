@@ -101,7 +101,6 @@ export default function DevicePage() {
       const data = await apiFetch('/devices/generate-suffix');
       if (data && data.suffix) {
         form.setFieldsValue({ number: data.suffix });
-        message.success(`已生成全局唯一后缀: ${data.suffix}`);
       } else {
         message.error('预分配唯一后缀失败');
       }
@@ -117,6 +116,7 @@ export default function DevicePage() {
     form.resetFields();
     form.setFieldsValue({
       date: dayjs(), // 默认登记日期为当天
+      letter: 'E',   // 默认预设前缀为 E
     });
     setIsModalOpen(true);
     // 开启录入时自动预填一个唯一的4位数字后缀
@@ -389,58 +389,71 @@ export default function DevicePage() {
           layout="vertical"
           style={{ marginTop: '20px' }}
         >
-          {/* 新增模式显示 letter 和 number 选择 */}
+          {/* 新增模式显示首字母与数字后缀组合在同一行 */}
           {!editingItem ? (
-            <>
-              <Form.Item
-                name="letter"
-                label={
-                  <Space>
-                    <span>设备ID首字母前缀</span>
-                    <Tooltip title="由您指定一个起首的字母（A-Z），例如指定 A，加上四位数字 1024 即可拼出完整的 ID A1024">
-                      <span style={{ color: '#1890ff', cursor: 'pointer', fontSize: '12px' }}>格式说明</span>
-                    </Tooltip>
-                  </Space>
-                }
-                rules={[
-                  { required: true, message: '请输入首字母前缀' },
-                  { pattern: /^[a-zA-Z]$/, message: '只能输入单个英文字母 (A-Z 或 a-z)' },
-                ]}
-              >
-                <Input maxLength={1} placeholder="输入单个首字母（如 A、B、S）" style={{ textTransform: 'uppercase' }} />
-              </Form.Item>
-
-              <Form.Item
-                name="number"
-                label={
-                  <Space>
-                    <span>设备ID四位数字后缀</span>
-                    <Tooltip title="点击右侧生成按钮，系统将自动匹配一个全局未使用的4位数字。如果不喜欢，可以连续点击生成，直到满意为止。">
-                      <span style={{ color: '#1890ff', cursor: 'pointer', fontSize: '12px' }}>说明</span>
-                    </Tooltip>
-                  </Space>
-                }
-                rules={[
-                  { required: true, message: '请点击生成数字后缀' },
-                  { len: 4, message: '必须是4位数字' },
-                ]}
-              >
-                <div style={{ display: 'flex', gap: '8px' }}>
-                  <Input
-                    placeholder="点击右侧生成获取 4 位数字..."
-                    readOnly
-                    style={{ flex: 1, fontWeight: 'bold', color: 'var(--primary-color)' }}
-                  />
-                  <Button
-                    onClick={triggerGenerateSuffix}
-                    loading={generatingSuffix}
-                    type="dashed"
+            <Form.Item
+              label={
+                <Space>
+                  <span>设备 ID (字母前缀与4位随机数字后缀)</span>
+                  <Tooltip title="起首前缀目前仅支持 E 或 L；点击右侧生成按钮，系统将分配全局未使用的4位数字。若不喜欢，可重复点击更换，提交以最终为准。">
+                    <span style={{ color: '#1890ff', cursor: 'pointer', fontSize: '12px' }}>使用说明</span>
+                  </Tooltip>
+                </Space>
+              }
+              required
+              style={{ marginBottom: '24px' }}
+            >
+              <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                {/* 首字母前缀下拉框 */}
+                <Form.Item
+                  name="letter"
+                  noStyle
+                  rules={[{ required: true, message: '请选择字母前缀' }]}
+                >
+                  <Select
+                    placeholder="前缀"
+                    style={{ width: '90px' }}
                   >
-                    生成唯一后缀
-                  </Button>
-                </div>
-              </Form.Item>
-            </>
+                    <Select.Option value="E">E</Select.Option>
+                    <Select.Option value="L">L</Select.Option>
+                  </Select>
+                </Form.Item>
+
+                <span style={{ color: 'var(--text-secondary)', padding: '0 4px', fontWeight: 'bold' }}>-</span>
+
+                {/* 四位数字后缀输入框 */}
+                <Form.Item
+                  name="number"
+                  noStyle
+                  rules={[
+                    { required: true, message: '请点击生成数字后缀' },
+                    { len: 4, message: '必须是4位数字' },
+                  ]}
+                >
+                  <Input
+                    placeholder="生成获取 4 位数字..."
+                    readOnly
+                    style={{
+                      flex: 1,
+                      fontWeight: 'bold',
+                      color: 'var(--primary-color)',
+                      textAlign: 'center',
+                      letterSpacing: '1px',
+                    }}
+                  />
+                </Form.Item>
+
+                {/* 生成唯一后缀按钮 */}
+                <Button
+                  onClick={triggerGenerateSuffix}
+                  loading={generatingSuffix}
+                  type="dashed"
+                  style={{ borderColor: 'var(--primary-color)', color: 'var(--primary-color)' }}
+                >
+                  随机生成
+                </Button>
+              </div>
+            </Form.Item>
           ) : (
             <Form.Item label="当前物理设备 ID (只读锁定)">
               <Input value={editingItem.device_id} disabled style={{ color: 'var(--primary-color)', fontWeight: 'bold' }} />
