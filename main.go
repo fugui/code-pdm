@@ -78,8 +78,7 @@ func main() {
 		protected.GET("/devices", handlers.GetDevices)
 		protected.GET("/devices/:id", handlers.GetDevice)
 		protected.GET("/devices/generate-suffix", handlers.GenerateSuffix)
-		protected.GET("/device-types/export", handlers.ExportDeviceTypes)
-		protected.GET("/devices/export", handlers.ExportDevices)
+		protected.GET("/export/excel", handlers.ExportAllExcel)
 
 		// 需要管理员权限的写操作
 		admin := protected.Group("/")

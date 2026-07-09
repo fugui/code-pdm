@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"encoding/csv"
 	"net/http"
 	"regexp"
 	"strconv"
@@ -182,33 +181,4 @@ func DeleteDeviceType(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"message": "删除成功"})
 }
 
-// ExportDeviceTypes 导出所有设备类型为 CSV 格式 (Excel 兼容)
-func ExportDeviceTypes(c *gin.Context) {
-	var list []models.DeviceType
-	if err := models.DB.Order("id desc").Find(&list).Error; err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "获取设备类型导出数据失败"})
-		return
-	}
 
-	c.Header("Content-Type", "text/csv; charset=utf-8")
-	c.Header("Content-Disposition", "attachment; filename=machine_types.csv")
-
-	// 写入 UTF-8 BOM 使得 Excel 打开时不出现乱码
-	c.Writer.Write([]byte{0xEF, 0xBB, 0xBF})
-
-	writer := csv.NewWriter(c.Writer)
-	defer writer.Flush()
-
-	// 写入表头
-	writer.Write([]string{"序号", "设备型号 (Model)", "设备大类名称", "详细说明/备注", "创建时间"})
-
-	for _, dt := range list {
-		writer.Write([]string{
-			strconv.Itoa(int(dt.ID)),
-			dt.Model,
-			dt.Name,
-			dt.Description,
-			dt.CreatedAt.Format("2006-01-02 15:04:05"),
-		})
-	}
-}

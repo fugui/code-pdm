@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"encoding/csv"
 	"net/http"
 	"strconv"
 	"strings"
@@ -242,46 +241,4 @@ func DeleteDevice(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"message": "设备删除成功"})
 }
 
-// ExportDevices 导出设备列表为 CSV 格式 (Excel 兼容)
-func ExportDevices(c *gin.Context) {
-	var list []models.Device
-	// 关联查询设备类型
-	if err := models.DB.Preload("DeviceType").Order("id desc").Find(&list).Error; err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "获取设备导出数据失败"})
-		return
-	}
 
-	c.Header("Content-Type", "text/csv; charset=utf-8")
-	c.Header("Content-Disposition", "attachment; filename=machines.csv")
-
-	// 写入 UTF-8 BOM 使得 Excel 直接打开不会出现中文乱码
-	c.Writer.Write([]byte{0xEF, 0xBB, 0xBF})
-
-	writer := csv.NewWriter(c.Writer)
-	defer writer.Flush()
-
-	// 写入表头
-	writer.Write([]string{"序号", "设备 ID (标识符)", "前缀字母", "后缀数字", "设备实体名称", "所属设备大类名称", "设备大类主型号", "登记/出厂日期", "详细备注/说明", "创建时间"})
-
-	for _, d := range list {
-		typeName := "未分类"
-		typeModel := "未知"
-		if d.DeviceType.ID != 0 {
-			typeName = d.DeviceType.Name
-			typeModel = d.DeviceType.Model
-		}
-
-		writer.Write([]string{
-			strconv.Itoa(int(d.ID)),
-			d.DeviceID,
-			d.Letter,
-			d.Number,
-			d.Name,
-			typeName,
-			typeModel,
-			d.Date,
-			d.Description,
-			d.CreatedAt.Format("2006-01-02 15:04:05"),
-		})
-	}
-}

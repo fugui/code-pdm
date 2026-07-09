@@ -177,13 +177,13 @@ export default function DevicePage() {
     }
   };
 
-  // 导出 Excel 格式 CSV
+  // 导出 Excel 格式 xlsx
   const handleExport = () => {
     const token = localStorage.getItem('code_shield_token');
     const baseUrl = (window as any).__POWERED_BY_PORTAL__ ? '/pdm/api' : '/api';
     
     setLoading(true);
-    fetch(`${baseUrl}/devices/export`, {
+    fetch(`${baseUrl}/export/excel`, {
       headers: {
         ...(token ? { 'Authorization': `Bearer ${token}` } : {})
       }
@@ -196,10 +196,11 @@ export default function DevicePage() {
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
-        a.download = 'machines.csv';
+        const dateStr = new Date().toISOString().slice(0, 10);
+        a.download = `pdm_export_${dateStr}.xlsx`;
         a.click();
         URL.revokeObjectURL(url);
-        message.success('设备档案导出成功');
+        message.success('数据导出成功');
       })
       .catch(err => {
         message.error(err.message || '导出失败，请稍后重试');
