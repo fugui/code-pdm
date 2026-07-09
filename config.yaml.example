@@ -1,0 +1,9 @@
+server:
+  port: ":8085"
+  gin_log: true
+
+auth:
+  jwt_secret: "ABCDEFGHIJKLMNOPQRSTVUWXYZ0987654321"
+
+database:
+  path: "code_pdm.db"
