@@ -138,6 +138,37 @@ export default function App({ isEmbedded = false }: { isEmbedded?: boolean }) {
   const navigate = useNavigate();
   const [user, setUser] = useState<any>(null);
   const [loadingUser, setLoadingUser] = useState(true);
+  const [currentTheme, setCurrentTheme] = useState<'dark' | 'light'>('dark');
+
+  useEffect(() => {
+    const checkTheme = () => {
+      const savedTheme = localStorage.getItem('code-theme');
+      if (savedTheme === 'dark' || savedTheme === 'light') {
+        setCurrentTheme(savedTheme);
+        return;
+      }
+      const isLight = document.documentElement.classList.contains('light-theme') || 
+                      document.documentElement.getAttribute('class')?.includes('light-theme');
+      setCurrentTheme(isLight ? 'light' : 'dark');
+    };
+
+    checkTheme();
+
+    const observer = new MutationObserver((mutations) => {
+      mutations.forEach((mutation) => {
+        if (mutation.attributeName === 'class') {
+          checkTheme();
+        }
+      });
+    });
+
+    observer.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ['class'],
+    });
+
+    return () => observer.disconnect();
+  }, []);
 
   const loadUser = async () => {
     const token = localStorage.getItem('code_shield_token');
@@ -170,7 +201,14 @@ export default function App({ isEmbedded = false }: { isEmbedded?: boolean }) {
   // 1. 如果是被 code-bench 宿主嵌套，直接进行路由映射，不需要 PDM 自带的侧边栏与页眉
   if (isEmbedded) {
     return (
-      <ConfigProvider theme={{ algorithm: theme.darkAlgorithm }}>
+      <ConfigProvider
+        theme={{
+          algorithm: currentTheme === 'light' ? theme.defaultAlgorithm : theme.darkAlgorithm,
+          token: {
+            colorPrimary: '#3b82f6',
+          },
+        }}
+      >
         <Routes>
           <Route path="/device-types" element={<DeviceTypePage />} />
           <Route path="/devices" element={<DevicePage />} />
@@ -206,18 +244,18 @@ export default function App({ isEmbedded = false }: { isEmbedded?: boolean }) {
   return (
     <ConfigProvider
       theme={{
-        algorithm: theme.darkAlgorithm,
+        algorithm: currentTheme === 'light' ? theme.defaultAlgorithm : theme.darkAlgorithm,
         token: {
           colorPrimary: '#3b82f6',
         },
       }}
     >
-      <Layout style={{ minHeight: '100vh', background: '#0b1120' }}>
+      <Layout style={{ minHeight: '100vh', background: 'var(--bg-color)', transition: 'background-color 0.3s' }}>
         <Sider
           width={240}
-          style={{ background: '#0f172a', borderRight: '1px solid #1e293b' }}
+          style={{ background: 'var(--card-bg)', borderRight: '1px solid var(--border-color)', transition: 'background-color 0.3s, border-color 0.3s' }}
         >
-          <div style={{ height: '64px', padding: '16px', display: 'flex', alignItems: 'center', gap: '8px', borderBottom: '1px solid #1e293b' }}>
+          <div style={{ height: '64px', padding: '16px', display: 'flex', alignItems: 'center', gap: '8px', borderBottom: '1px solid var(--border-color)' }}>
             <div style={{
               width: '32px',
               height: '32px',
@@ -232,8 +270,8 @@ export default function App({ isEmbedded = false }: { isEmbedded?: boolean }) {
               P
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', lineHeight: 1.2 }}>
-              <span style={{ fontSize: '14px', fontWeight: 'bold', color: '#f8fafc' }}>PDM 数据中心</span>
-              <span style={{ fontSize: '10px', color: '#64748b' }}>独立调试模式</span>
+              <span style={{ fontSize: '14px', fontWeight: 'bold', color: 'var(--text-color)' }}>PDM 数据中心</span>
+              <span style={{ fontSize: '10px', color: '#8c8c8c' }}>独立调试模式</span>
             </div>
           </div>
           <Menu
@@ -256,8 +294,8 @@ export default function App({ isEmbedded = false }: { isEmbedded?: boolean }) {
         </Sider>
         
         <Layout style={{ background: 'transparent' }}>
-          <Header style={{ background: '#0f172a', borderBottom: '1px solid #1e293b', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 24px' }}>
-            <span style={{ fontSize: '16px', fontWeight: 600, color: '#f8fafc' }}>
+          <Header style={{ background: 'var(--card-bg)', borderBottom: '1px solid var(--border-color)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 24px', transition: 'background-color 0.3s, border-color 0.3s' }}>
+            <span style={{ fontSize: '16px', fontWeight: 600, color: 'var(--text-color)' }}>
               {getSelectedKey() === 'devices' ? '设备 ID 档案管理' : '设备类型管理'}
             </span>
             {user && (
@@ -265,7 +303,7 @@ export default function App({ isEmbedded = false }: { isEmbedded?: boolean }) {
                 <Tag color={user.is_admin ? 'gold' : 'blue'} icon={<UserOutlined />} style={{ padding: '4px 8px', borderRadius: '4px' }}>
                   {user.name || user.username} ({user.is_admin ? '管理员' : '普通用户'})
                 </Tag>
-                <Button type="text" icon={<LogoutOutlined />} onClick={handleLogout} style={{ color: '#94a3b8' }}>
+                <Button type="text" icon={<LogoutOutlined />} onClick={handleLogout} style={{ color: 'var(--text-color)', opacity: 0.8 }}>
                   退出登录
                 </Button>
               </Space>
