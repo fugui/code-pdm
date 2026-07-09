@@ -28,7 +28,14 @@ body {
 .ant-card {
   background: var(--card-bg) !important;
   border-color: var(--border-color) !important;
-  transition: background-color 0.3s, border-color 0.3s !important;
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.15), 
+              inset 0 1px 0 0 rgba(255, 255, 255, 0.05) !important; /* 顶内高光，营造物理厚度 */
+  transition: background-color 0.3s, border-color 0.3s, box-shadow 0.3s !important;
+}
+
+:root.light-theme .ant-card {
+  box-shadow: 0 8px 24px 0 rgba(15, 23, 42, 0.04),
+              inset 0 1px 0 0 rgba(255, 255, 255, 0.8) !important;
 }
 
 .ant-card-head {
@@ -41,33 +48,48 @@ body {
   background: transparent !important;
 }
 
-/* 使表格整体背景透明，透出卡片底色 */
+/* 强制使表格容器有细腻的边界，产生浮动面板效果 */
+.ant-table-container {
+  border: 1px solid var(--border-color) !important;
+  border-radius: 8px !important;
+  overflow: hidden !important;
+  box-shadow: 0 4px 16px 0 rgba(0, 0, 0, 0.08) !important;
+}
+
+:root.light-theme .ant-table-container {
+  box-shadow: 0 4px 16px 0 rgba(0, 0, 0, 0.01) !important;
+}
+
 .ant-table {
   background: transparent !important;
   color: var(--text-color) !important;
 }
 
-/* 表头背景：使用页面背景色，文字使用主题文本色，边框使用主题边框色 */
+/* 表头背景：带有一点点立面微弱渐变，极大强化立体观感 */
 .ant-table-thead > tr > th {
-  background: var(--bg-color) !important;
+  background: linear-gradient(180deg, var(--bg-color) 0%, var(--card-bg) 100%) !important;
   color: var(--text-color) !important;
+  font-weight: 600 !important;
   border-bottom: 1px solid var(--border-color) !important;
 }
 
-/* 单元格背景：使用卡片背景色，文字使用主题文本色，边框使用主题边框色 */
 .ant-table-tbody > tr > td {
   background: var(--card-bg) !important;
   color: var(--text-color) !important;
   border-bottom: 1px solid var(--border-color) !important;
+  transition: background-color 0.2s !important;
 }
 
-/* 鼠标悬停时的背景变暗/淡化过渡，保持自然感 */
+/* 最后一行的单元格去除底边，显得更整洁 */
+.ant-table-tbody > tr:last-child > td {
+  border-bottom: none !important;
+}
+
 .ant-table-tbody > tr.ant-table-row:hover > td,
 .ant-table-tbody > tr > td.ant-table-cell-row-hover {
   background: var(--bg-color) !important;
 }
 
-/* 分页组件文本色适配 */
 .ant-pagination {
   color: var(--text-color) !important;
 }
