@@ -200,7 +200,7 @@ func ExportDeviceTypes(c *gin.Context) {
 	defer writer.Flush()
 
 	// 写入表头
-	writer.Write([]string{"序号", "机器型号 (Model)", "机器大类名称", "详细说明/备注", "创建时间"})
+	writer.Write([]string{"序号", "设备型号 (Model)", "设备大类名称", "详细说明/备注", "创建时间"})
 
 	for _, dt := range list {
 		writer.Write([]string{
