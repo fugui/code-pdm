@@ -66,7 +66,7 @@ func GetDevice(c *gin.Context) {
 // CreateDevice 创建设备（由前端提供已生成的四位唯一后缀）
 func CreateDevice(c *gin.Context) {
 	var req struct {
-		Letter       string `json:"letter" binding:"required"` // 单字母前缀
+		Letter       string `json:"letter"`                    // 可选前缀字段（优先以设备类型对应的 Letter 为准）
 		Number       string `json:"number" binding:"required"` // 前端指定的四位唯一后缀
 		Name         string `json:"name" binding:"required"`
 		Description  string `json:"description"`
@@ -75,18 +75,25 @@ func CreateDevice(c *gin.Context) {
 	}
 
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "请填写必要字段（前缀字母、数字后缀、名称、设备类型）"})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "请填写必要字段（数字后缀、名称、设备类型）"})
 		return
 	}
 
-	// 1. 验证并规范化首字母
-	prefix, err := utils.FormatLetter(req.Letter)
+	// 1. 验证设备类型是否存在
+	var dt models.DeviceType
+	if err := models.DB.First(&dt, req.DeviceTypeID).Error; err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "所选设备类型不存在"})
+		return
+	}
+
+	// 2. 验证并规范化首字母（取关联设备类型的 Letter）
+	prefix, err := utils.FormatLetter(dt.Letter)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "设备类型首字母格式无效: " + err.Error()})
 		return
 	}
 
-	// 2. 验证后缀数字格式
+	// 3. 验证后缀数字格式
 	suffix := strings.TrimSpace(req.Number)
 	if len(suffix) != 4 {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "数字后缀必须为 4 位"})
@@ -97,13 +104,6 @@ func CreateDevice(c *gin.Context) {
 			c.JSON(http.StatusBadRequest, gin.H{"error": "数字后缀必须全为数字(0-9)"})
 			return
 		}
-	}
-
-	// 3. 验证设备类型是否存在
-	var dt models.DeviceType
-	if err := models.DB.First(&dt, req.DeviceTypeID).Error; err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "所选设备类型不存在"})
-		return
 	}
 
 	// 4. 处理登记日期，若为空默认为当天

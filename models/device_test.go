@@ -23,6 +23,7 @@ func TestDeviceIDConcurrencySafety(t *testing.T) {
 
 	dt := DeviceType{
 		Model:       "T:1",
+		Letter:      "T",
 		Name:        "测试大类",
 		Description: "并发测试专用设备大类",
 	}

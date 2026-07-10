@@ -8,6 +8,7 @@ interface DeviceType {
   id: number;
   model: string;
   name: string;
+  letter: string;
 }
 
 interface Device {
@@ -111,12 +112,20 @@ export default function DevicePage() {
     }
   };
 
+  // 选择设备类型时自动提取首字母填充
+  const handleDeviceTypeChange = (val: number) => {
+    const selected = deviceTypes.find(t => t.id === val);
+    if (selected) {
+      form.setFieldsValue({ letter: selected.letter || '' });
+    }
+  };
+
   const handleCreate = () => {
     setEditingItem(null);
     form.resetFields();
     form.setFieldsValue({
       date: dayjs(), // 默认登记日期为当天
-      letter: 'E',   // 默认预设前缀为 E
+      letter: '',   // 默认预设前缀改为空，需要选择设备类型后自动填充
     });
     setIsModalOpen(true);
     // 开启录入时自动预填一个唯一的4位数字后缀
@@ -127,6 +136,7 @@ export default function DevicePage() {
     setEditingItem(record);
     form.setFieldsValue({
       name: record.name,
+      letter: record.letter,
       device_type_id: record.device_type_id,
       date: record.date ? dayjs(record.date, 'YYYY-MM-DD') : dayjs(),
       description: record.description,
@@ -397,12 +407,26 @@ export default function DevicePage() {
           style={{ marginTop: '20px' }}
         >
           {/* 新增模式显示首字母与数字后缀组合在同一行 */}
+          {/* 先选择所属设备类型 */}
+          <Form.Item
+            name="device_type_id"
+            label="所属设备类型"
+            rules={[{ required: true, message: '请选择所属的设备类型' }]}
+          >
+            <Select placeholder="选择关联的设备大类型" onChange={handleDeviceTypeChange}>
+              {deviceTypes.map(t => (
+                <Select.Option key={t.id} value={t.id}>{t.name} ({t.model})</Select.Option>
+              ))}
+            </Select>
+          </Form.Item>
+
+          {/* 新增模式显示首字母与数字后缀组合在同一行 */}
           {!editingItem ? (
             <Form.Item
               label={
                 <Space>
                   <span>设备 ID (字母前缀与4位随机数字后缀)</span>
-                  <Tooltip title="起首前缀目前仅支持 E 或 L；点击右侧生成按钮，系统将分配全局未使用的4位数字。若不喜欢，可重复点击更换，提交以最终为准。">
+                  <Tooltip title="选择所属设备类型后，首字母前缀将自动填入；点击随机生成分配全局未使用的4位数字后缀。">
                     <span style={{ color: '#1890ff', cursor: 'pointer', fontSize: '12px' }}>使用说明</span>
                   </Tooltip>
                 </Space>
@@ -411,19 +435,22 @@ export default function DevicePage() {
               style={{ marginBottom: '24px' }}
             >
               <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-                {/* 首字母前缀下拉框 */}
+                {/* 首字母前缀只读输入框 */}
                 <Form.Item
                   name="letter"
                   noStyle
-                  rules={[{ required: true, message: '请选择字母前缀' }]}
+                  rules={[{ required: true, message: '请先选择设备类型以自动填充前缀' }]}
                 >
-                  <Select
+                  <Input
                     placeholder="前缀"
-                    style={{ width: '90px' }}
-                  >
-                    <Select.Option value="E">E</Select.Option>
-                    <Select.Option value="L">L</Select.Option>
-                  </Select>
+                    readOnly
+                    style={{
+                      width: '90px',
+                      textAlign: 'center',
+                      fontWeight: 'bold',
+                      color: 'var(--primary-color)',
+                    }}
+                  />
                 </Form.Item>
 
                 <span style={{ color: 'var(--text-secondary)', padding: '0 4px', fontWeight: 'bold' }}>-</span>
@@ -466,18 +493,6 @@ export default function DevicePage() {
               <Input value={editingItem.device_id} disabled style={{ color: 'var(--primary-color)', fontWeight: 'bold' }} />
             </Form.Item>
           )}
-
-          <Form.Item
-            name="device_type_id"
-            label="所属设备类型"
-            rules={[{ required: true, message: '请选择所属的设备类型' }]}
-          >
-            <Select placeholder="选择关联的设备大类型">
-              {deviceTypes.map(t => (
-                <Select.Option key={t.id} value={t.id}>{t.name} ({t.model})</Select.Option>
-              ))}
-            </Select>
-          </Form.Item>
 
           <Form.Item
             name="name"

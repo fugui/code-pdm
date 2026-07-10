@@ -18,6 +18,7 @@ type User struct {
 type DeviceType struct {
 	ID          uint      `gorm:"primaryKey" json:"id"`
 	Model       string    `gorm:"uniqueIndex;not null;size:50" json:"model"` // 用户可见型号
+	Letter      string    `gorm:"not null;size:1;default:'E'" json:"letter"` // 首字母前缀，大写单个英文字母
 	Name        string    `gorm:"not null" json:"name"`                      // 设备类型名称
 	Description string    `json:"description"`                               // 说明
 	CreatedAt   time.Time `json:"created_at"`

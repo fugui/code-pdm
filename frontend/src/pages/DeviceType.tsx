@@ -8,6 +8,7 @@ const modelRegex = /^[a-zA-Z]{1,2}:?[0-9]+$/;
 interface DeviceType {
   id: number;
   model: string;
+  letter: string;
   name: string;
   description: string;
   created_at: string;
@@ -80,6 +81,7 @@ export default function DeviceTypePage() {
     setEditingItem(record);
     form.setFieldsValue({
       model: record.model,
+      letter: record.letter,
       name: record.name,
       description: record.description,
     });
@@ -169,6 +171,13 @@ export default function DeviceTypePage() {
       dataIndex: 'model',
       key: 'model',
       render: (text: string) => <strong style={{ color: 'var(--primary-color)' }}>{text}</strong>,
+    },
+    {
+      title: '首字母前缀',
+      dataIndex: 'letter',
+      key: 'letter',
+      width: 120,
+      render: (text: string) => <Tag color="blue">{text}</Tag>,
     },
     {
       title: '设备大类名称',
@@ -334,6 +343,18 @@ export default function DeviceTypePage() {
             ]}
           >
             <Input placeholder="例如: E10 或 AB:99" />
+          </Form.Item>
+
+          <Form.Item
+            name="letter"
+            label="ID 首字母前缀"
+            rules={[
+              { required: true, message: '请输入首字母前缀' },
+              { len: 1, message: '首字母前缀必须是单个英文字母' },
+              { pattern: /^[a-zA-Z]$/, message: '必须是单个英文字母 A-Z' }
+            ]}
+          >
+            <Input placeholder="输入单个英文字母前缀，例如: E, L, T" maxLength={1} />
           </Form.Item>
 
           <Form.Item
