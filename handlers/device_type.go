@@ -123,20 +123,13 @@ func UpdateDeviceType(c *gin.Context) {
 
 	var req struct {
 		Model       string `json:"model" binding:"required"`
-		Letter      string `json:"letter" binding:"required"` // 首字母前缀
-		Name        string `json:"name" binding:"required"`
+		Letter      string `json:"letter"` // 只读字段，编辑时不予更新
+		Name        string `json:"name"`   // 只读字段，编辑时不予更新
 		Description string `json:"description"`
 	}
 
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "请填写必要字段（型号、首字母、大类名称）"})
-		return
-	}
-
-	// 1. 验证并规范化首字母
-	prefix, err := utils.FormatLetter(req.Letter)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "请填写必要字段（型号）"})
 		return
 	}
 
@@ -153,9 +146,8 @@ func UpdateDeviceType(c *gin.Context) {
 		return
 	}
 
+	// 仅更新 Model 与 Description 字段，锁定 Name 与 Letter 的变更
 	dt.Model = req.Model
-	dt.Letter = prefix
-	dt.Name = strings.TrimSpace(req.Name)
 	dt.Description = strings.TrimSpace(req.Description)
 
 	if err := models.DB.Save(&dt).Error; err != nil {

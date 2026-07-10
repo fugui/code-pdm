@@ -176,21 +176,13 @@ func UpdateDevice(c *gin.Context) {
 	}
 
 	var req struct {
-		Name         string `json:"name" binding:"required"`
-		Description  string `json:"description"`
-		Date         string `json:"date"`
-		DeviceTypeID uint   `json:"device_type_id" binding:"required"`
+		Name        string `json:"name" binding:"required"`
+		Description string `json:"description"`
+		Date        string `json:"date"`
 	}
 
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "请填写必要字段"})
-		return
-	}
-
-	// 验证新指定的设备类型是否存在
-	var dt models.DeviceType
-	if err := models.DB.First(&dt, req.DeviceTypeID).Error; err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "所选设备类型不存在"})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "请填写必要字段（名称）"})
 		return
 	}
 
@@ -205,11 +197,10 @@ func UpdateDevice(c *gin.Context) {
 		}
 	}
 
-	// 仅更新描述性及分类信息，不改变硬件编码 Letter 和 Number 后缀
+	// 仅更新描述性信息，不改变硬件编码 Letter、Number 后缀以及所属设备大类
 	dev.Name = strings.TrimSpace(req.Name)
 	dev.Description = strings.TrimSpace(req.Description)
 	dev.Date = dateStr
-	dev.DeviceTypeID = req.DeviceTypeID
 
 	if err := models.DB.Save(&dev).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "更新设备失败"})

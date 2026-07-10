@@ -413,7 +413,7 @@ export default function DevicePage() {
             label="所属设备类型"
             rules={[{ required: true, message: '请选择所属的设备类型' }]}
           >
-            <Select placeholder="选择关联的设备大类型" onChange={handleDeviceTypeChange}>
+            <Select placeholder="选择关联的设备大类型" onChange={handleDeviceTypeChange} disabled={!!editingItem}>
               {deviceTypes.map(t => (
                 <Select.Option key={t.id} value={t.id}>{t.name} ({t.model})</Select.Option>
               ))}

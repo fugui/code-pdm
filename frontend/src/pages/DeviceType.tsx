@@ -354,7 +354,7 @@ export default function DeviceTypePage() {
               { pattern: /^[a-zA-Z]$/, message: '必须是单个英文字母 A-Z' }
             ]}
           >
-            <Input placeholder="输入单个英文字母，例如: E, L, T" maxLength={1} />
+            <Input placeholder="输入单个英文字母，例如: E, L, T" maxLength={1} disabled={!!editingItem} />
           </Form.Item>
 
           <Form.Item
@@ -362,7 +362,7 @@ export default function DeviceTypePage() {
             label="设备大类名称"
             rules={[{ required: true, message: '请输入设备类型名称' }]}
           >
-            <Input placeholder="输入描述性的类型名称，如：边缘核心计算模块" />
+            <Input placeholder="输入描述性的类型名称，如：边缘核心计算模块" disabled={!!editingItem} />
           </Form.Item>
 
           <Form.Item
