@@ -173,7 +173,7 @@ export default function DeviceTypePage() {
       render: (text: string) => <strong style={{ color: 'var(--primary-color)' }}>{text}</strong>,
     },
     {
-      title: '首字母前缀',
+      title: '设备ID首字母',
       dataIndex: 'letter',
       key: 'letter',
       width: 120,
@@ -347,14 +347,14 @@ export default function DeviceTypePage() {
 
           <Form.Item
             name="letter"
-            label="ID 首字母前缀"
+            label="设备ID首字母"
             rules={[
-              { required: true, message: '请输入首字母前缀' },
-              { len: 1, message: '首字母前缀必须是单个英文字母' },
+              { required: true, message: '请输入设备ID首字母' },
+              { len: 1, message: '设备ID首字母必须是单个英文字母' },
               { pattern: /^[a-zA-Z]$/, message: '必须是单个英文字母 A-Z' }
             ]}
           >
-            <Input placeholder="输入单个英文字母前缀，例如: E, L, T" maxLength={1} />
+            <Input placeholder="输入单个英文字母，例如: E, L, T" maxLength={1} />
           </Form.Item>
 
           <Form.Item
