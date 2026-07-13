@@ -248,6 +248,7 @@ export default function DevicePage() {
       title: '说明',
       dataIndex: 'description',
       key: 'description',
+      width: 250,
       ellipsis: true,
       render: (text: string) => text || <span style={{ color: '#8c8c8c', fontStyle: 'italic' }}>暂无描述</span>,
     },

@@ -190,6 +190,7 @@ export default function DeviceTypePage() {
       title: '详细说明',
       dataIndex: 'description',
       key: 'description',
+      width: 250,
       ellipsis: true,
       render: (text: string) => text || <span style={{ color: '#8c8c8c', fontStyle: 'italic' }}>暂无说明</span>,
     },
