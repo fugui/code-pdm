@@ -201,9 +201,9 @@ export default function DeviceTypePage() {
     {
       title: '操作',
       key: 'actions',
-      width: 180,
+      width: 140,
       render: (_: any, record: DeviceType) => (
-        <Space size="middle">
+        <Space size="small">
           <Button
             type="text"
             icon={<EditOutlined />}
