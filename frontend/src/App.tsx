@@ -214,10 +214,10 @@ export default function App({ isEmbedded = false }: { isEmbedded?: boolean }) {
         }}
       >
         <Routes>
-          <Route path="/device-types" element={<DeviceTypePage />} />
-          <Route path="/devices" element={<DevicePage />} />
-          <Route path="/pdm/device-types" element={<DeviceTypePage />} />
-          <Route path="/pdm/devices" element={<DevicePage />} />
+          <Route path="/device-type" element={<DeviceTypePage />} />
+          <Route path="/device" element={<DevicePage />} />
+          <Route path="/pdm/device-type" element={<DeviceTypePage />} />
+          <Route path="/pdm/device" element={<DevicePage />} />
           <Route path="*" element={<DeviceTypePage />} />
         </Routes>
       </ConfigProvider>
@@ -240,8 +240,9 @@ export default function App({ isEmbedded = false }: { isEmbedded?: boolean }) {
 
   // 选中菜单项判断
   const getSelectedKey = () => {
-    if (location.pathname.startsWith('/devices')) return 'devices';
-    return 'device-types';
+    if (location.pathname.includes('/device-type')) return 'device-type';
+    if (location.pathname.includes('/device')) return 'device';
+    return 'device-type';
   };
 
   // 独立运行的 Layout
@@ -284,14 +285,14 @@ export default function App({ isEmbedded = false }: { isEmbedded?: boolean }) {
             style={{ background: 'transparent', borderRight: 0, marginTop: '16px' }}
             items={[
               {
-                key: 'device-types',
+                key: 'device-type',
                 icon: <ApartmentOutlined />,
-                label: <Link to="/device-types">设备类型管理</Link>,
+                label: <Link to="/device-type">设备类型管理</Link>,
               },
               {
-                key: 'devices',
+                key: 'device',
                 icon: <DatabaseOutlined />,
-                label: <Link to="/devices">设备ID管理</Link>,
+                label: <Link to="/device">设备ID管理</Link>,
               },
             ]}
           />
@@ -300,7 +301,7 @@ export default function App({ isEmbedded = false }: { isEmbedded?: boolean }) {
         <Layout style={{ background: 'transparent' }}>
           <Header style={{ background: 'var(--card-bg)', borderBottom: '1px solid var(--border-color)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 24px', transition: 'background-color 0.3s, border-color 0.3s' }}>
             <span style={{ fontSize: '16px', fontWeight: 600, color: 'var(--text-color)' }}>
-              {getSelectedKey() === 'devices' ? '设备 ID 档案管理' : '设备类型管理'}
+              {getSelectedKey() === 'device' ? '设备 ID 档案管理' : '设备类型管理'}
             </span>
             {user && (
               <Space>
@@ -315,8 +316,8 @@ export default function App({ isEmbedded = false }: { isEmbedded?: boolean }) {
           </Header>
           <Content style={{ margin: '24px', overflow: 'initial' }}>
             <Routes>
-              <Route path="/device-types" element={<DeviceTypePage />} />
-              <Route path="/devices" element={<DevicePage />} />
+              <Route path="/device-type" element={<DeviceTypePage />} />
+              <Route path="/device" element={<DevicePage />} />
               <Route path="*" element={<DeviceTypePage />} />
             </Routes>
           </Content>
