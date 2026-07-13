@@ -271,11 +271,12 @@ export default function DevicePage() {
     {
       title: '操作',
       key: 'actions',
-      width: 140,
+      width: 160,
       render: (_: any, record: Device) => (
         <Space size="small">
           <Button
             type="text"
+            size="small"
             icon={<EditOutlined />}
             disabled={!isAdmin}
             onClick={() => handleEdit(record)}
@@ -293,6 +294,7 @@ export default function DevicePage() {
           >
             <Button
               type="text"
+              size="small"
               danger
               disabled={!isAdmin}
               icon={<DeleteOutlined />}
