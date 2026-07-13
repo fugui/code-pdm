@@ -163,26 +163,28 @@ export default function DeviceTypePage() {
     {
       title: '序号',
       key: 'index',
-      width: 120,
+      width: 80,
       render: (_: any, record: DeviceType) => data.indexOf(record) + 1,
     },
     {
       title: '设备型号 (Machine Type)',
       dataIndex: 'model',
       key: 'model',
+      width: 200,
       render: (text: string) => <strong style={{ color: 'var(--primary-color)' }}>{text}</strong>,
     },
     {
       title: '设备ID首字母',
       dataIndex: 'letter',
       key: 'letter',
-      width: 120,
+      width: 100,
       render: (text: string) => <Tag color="blue">{text}</Tag>,
     },
     {
       title: '设备大类名称',
       dataIndex: 'name',
       key: 'name',
+      width: 180,
     },
     {
       title: '详细说明',

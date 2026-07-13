@@ -233,6 +233,7 @@ export default function DevicePage() {
       title: '所属设备大类 (型号)',
       dataIndex: 'device_type',
       key: 'device_type',
+      width: 220,
       render: (type?: DeviceType) => type ? (
         <span>{type.name} <Tag style={{ borderRadius: '4px' }}>{type.model}</Tag></span>
       ) : <span style={{ color: '#d9d9d9' }}>未知</span>,
@@ -241,6 +242,7 @@ export default function DevicePage() {
       title: '设备名称',
       dataIndex: 'name',
       key: 'name',
+      width: 200,
     },
     {
       title: '说明',
