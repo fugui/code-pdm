@@ -485,8 +485,11 @@ export default function DevicePage() {
             pageSize: pageSize,
             pageSizeOptions: ['15', '25', '50', '100'],
             showSizeChanger: true,
-            showQuickJumper: true,
             total: data.length,
+            showTotal: (total) => {
+              const totalPages = Math.ceil(total / pageSize) || 1;
+              return `共 ${total} 条，当前 第 ${page}/${totalPages} 页`;
+            },
           }}
           onChange={handleTableChange}
           locale={{ emptyText: <Empty description="未检索到任何设备记录" /> }}
