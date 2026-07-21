@@ -99,10 +99,11 @@ export default function DevicePage() {
   }, [searchName]);
 
   // 针对下拉框变更，立即更新 URL
-  const handleTypeIDChange = (val: number | undefined) => {
-    setSearchTypeID(val);
+  const handleTypeIDChange = (val: any) => {
+    const isAll = val === "" || val === undefined;
+    setSearchTypeID(isAll ? undefined : Number(val));
     const newParams = new URLSearchParams(searchParams);
-    if (val !== undefined) {
+    if (!isAll) {
       newParams.set('device_type_id', String(val));
     } else {
       newParams.delete('device_type_id');
@@ -455,11 +456,12 @@ export default function DevicePage() {
           />
           <Select
             placeholder="过滤设备类型..."
-            value={searchTypeID}
+            value={searchTypeID !== undefined ? searchTypeID : ""}
             onChange={handleTypeIDChange}
             style={{ width: '220px' }}
             allowClear
           >
+            <Select.Option value="">全部设备</Select.Option>
             {deviceTypes.map(t => (
               <Select.Option key={t.id} value={t.id}>{t.name} ({t.model})</Select.Option>
             ))}
