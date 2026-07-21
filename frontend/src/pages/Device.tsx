@@ -487,6 +487,9 @@ export default function DevicePage() {
               const totalPages = Math.ceil(total / pageSize) || 1;
               return `共 ${total} 条，当前 第 ${page}/${totalPages} 页`;
             },
+            locale: {
+              items_per_page: '/ 页',
+            },
           }}
           onChange={handleTableChange}
           locale={{ emptyText: <Empty description="未检索到任何设备记录" /> }}

@@ -1,6 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { Routes, Route, Link, useLocation, useNavigate } from 'react-router-dom';
 import { Layout, Menu, Button, Space, message, ConfigProvider, theme, Tag } from 'antd';
+import zhCN from 'antd/locale/zh_CN';
+import dayjs from 'dayjs';
+import 'dayjs/locale/zh-cn';
+
+dayjs.locale('zh-cn');
 import { DatabaseOutlined, ApartmentOutlined, UserOutlined, LogoutOutlined, LockOutlined } from '@ant-design/icons';
 import DeviceTypePage from './pages/DeviceType';
 import DevicePage from './pages/Device';
@@ -206,6 +211,7 @@ export default function App({ isEmbedded = false }: { isEmbedded?: boolean }) {
   if (isEmbedded) {
     return (
       <ConfigProvider
+        locale={zhCN}
         theme={{
           algorithm: currentTheme === 'light' ? theme.defaultAlgorithm : theme.darkAlgorithm,
           token: {
@@ -248,6 +254,7 @@ export default function App({ isEmbedded = false }: { isEmbedded?: boolean }) {
   // 独立运行的 Layout
   return (
     <ConfigProvider
+      locale={zhCN}
       theme={{
         algorithm: currentTheme === 'light' ? theme.defaultAlgorithm : theme.darkAlgorithm,
         token: {
