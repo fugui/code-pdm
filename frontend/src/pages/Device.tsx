@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { Table, Card, Button, Input, Space, Modal, Form, Select, DatePicker, Popconfirm, message, Tag, Tooltip, Empty } from 'antd';
 import { PlusOutlined, EditOutlined, DeleteOutlined, SearchOutlined, ReloadOutlined, DownloadOutlined } from '@ant-design/icons';
 import dayjs from 'dayjs';
@@ -25,12 +26,13 @@ interface Device {
 }
 
 export default function DevicePage() {
+  const [searchParams, setSearchParams] = useSearchParams();
   const [data, setData] = useState<Device[]>([]);
   const [deviceTypes, setDeviceTypes] = useState<DeviceType[]>([]);
   const [loading, setLoading] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
 
-  // 搜索过滤器
+  // 搜索过滤器 (作为输入框临时状态)
   const [searchID, setSearchID] = useState('');
   const [searchName, setSearchName] = useState('');
   const [searchTypeID, setSearchTypeID] = useState<number | undefined>(undefined);
@@ -40,6 +42,23 @@ export default function DevicePage() {
   const [editingItem, setEditingItem] = useState<Device | null>(null);
   const [form] = Form.useForm();
   const [generatingSuffix, setGeneratingSuffix] = useState(false);
+
+  // 从 URL 读取过滤、分页和排序状态
+  const urlSearchID = searchParams.get('device_id') || '';
+  const urlSearchName = searchParams.get('name') || '';
+  const urlSearchTypeID = searchParams.get('device_type_id') ? Number(searchParams.get('device_type_id')) : undefined;
+
+  const page = Number(searchParams.get('page')) || 1;
+  const pageSize = Number(searchParams.get('pageSize')) || 15;
+  const sortField = searchParams.get('sortField') || '';
+  const sortOrder = searchParams.get('sortOrder') || '';
+
+  // 在 URL 参数变化时，同步到本地输入框的 state，保证回显
+  useEffect(() => {
+    setSearchID(urlSearchID);
+    setSearchName(urlSearchName);
+    setSearchTypeID(urlSearchTypeID);
+  }, [urlSearchID, urlSearchName, urlSearchTypeID]);
 
   // 获取用户权限
   const fetchUserPermission = async () => {
@@ -66,9 +85,13 @@ export default function DevicePage() {
     setLoading(true);
     try {
       const queryParams = [];
-      if (searchID) queryParams.push(`device_id=${encodeURIComponent(searchID)}`);
-      if (searchName) queryParams.push(`name=${encodeURIComponent(searchName)}`);
-      if (searchTypeID) queryParams.push(`device_type_id=${searchTypeID}`);
+      const currentID = searchParams.get('device_id') || '';
+      const currentName = searchParams.get('name') || '';
+      const currentTypeID = searchParams.get('device_type_id') || '';
+
+      if (currentID) queryParams.push(`device_id=${encodeURIComponent(currentID)}`);
+      if (currentName) queryParams.push(`name=${encodeURIComponent(currentName)}`);
+      if (currentTypeID) queryParams.push(`device_type_id=${currentTypeID}`);
 
       const queryString = queryParams.length ? `?${queryParams.join('&')}` : '';
       const list = await apiFetch(`/devices${queryString}`);
@@ -83,16 +106,80 @@ export default function DevicePage() {
   useEffect(() => {
     fetchUserPermission();
     fetchDeviceTypes();
-    fetchData();
   }, []);
+
+  // 当 URL 中的过滤条件改变时，拉取对应数据
+  useEffect(() => {
+    fetchData();
+  }, [urlSearchID, urlSearchName, urlSearchTypeID]);
+
+  // 执行查询，将输入框状态同步到 URL
+  const handleSearch = () => {
+    const newParams = new URLSearchParams(searchParams);
+    let changed = false;
+
+    const setOrDelete = (key: string, value: string) => {
+      const old = newParams.get(key) || '';
+      if (old !== value) {
+        changed = true;
+        if (value) {
+          newParams.set(key, value);
+        } else {
+          newParams.delete(key);
+        }
+      }
+    };
+
+    setOrDelete('device_id', searchID);
+    setOrDelete('name', searchName);
+    setOrDelete('device_type_id', searchTypeID ? String(searchTypeID) : '');
+
+    // 每次查询重置页码为 1
+    if (newParams.get('page') !== '1') {
+      newParams.set('page', '1');
+      changed = true;
+    }
+
+    if (changed) {
+      setSearchParams(newParams);
+    } else {
+      // 过滤条件没有改变时，手动重新获取数据以起到刷新效果
+      fetchData();
+    }
+  };
 
   const handleResetSearch = () => {
     setSearchID('');
     setSearchName('');
     setSearchTypeID(undefined);
-    setTimeout(() => {
-      fetchData();
-    }, 0);
+
+    const newParams = new URLSearchParams();
+    newParams.set('page', '1');
+    newParams.set('pageSize', '15');
+    setSearchParams(newParams);
+  };
+
+  // 处理表格页码、条数、排序变化并同步到 URL
+  const handleTableChange = (pagination: any, filters: any, sorter: any) => {
+    const newParams = new URLSearchParams(searchParams);
+
+    if (pagination.current) {
+      newParams.set('page', String(pagination.current));
+    }
+    if (pagination.pageSize) {
+      newParams.set('pageSize', String(pagination.pageSize));
+    }
+
+    const singleSorter = Array.isArray(sorter) ? sorter[0] : sorter;
+    if (singleSorter && singleSorter.field && singleSorter.order) {
+      newParams.set('sortField', String(singleSorter.field));
+      newParams.set('sortOrder', singleSorter.order);
+    } else {
+      newParams.delete('sortField');
+      newParams.delete('sortOrder');
+    }
+
+    setSearchParams(newParams);
   };
 
   // 请求后台生成一个当前不重复的 4 位随机后缀
@@ -228,6 +315,7 @@ export default function DevicePage() {
       width: 150,
       render: (text: string) => <strong style={{ color: 'var(--primary-color)' }}>{text}</strong>,
       sorter: (a: Device, b: Device) => a.device_id.localeCompare(b.device_id),
+      sortOrder: sortField === 'device_id' ? (sortOrder as 'ascend' | 'descend' | null) : null,
     },
     {
       title: '所属设备大类 (型号)',
@@ -237,12 +325,16 @@ export default function DevicePage() {
       render: (type?: DeviceType) => type ? (
         <span>{type.name} <Tag style={{ borderRadius: '4px' }}>{type.model}</Tag></span>
       ) : <span style={{ color: '#d9d9d9' }}>未知</span>,
+      sorter: (a: Device, b: Device) => (a.device_type?.model || '').localeCompare(b.device_type?.model || ''),
+      sortOrder: sortField === 'device_type' ? (sortOrder as 'ascend' | 'descend' | null) : null,
     },
     {
       title: '设备名称',
       dataIndex: 'name',
       key: 'name',
       width: 200,
+      sorter: (a: Device, b: Device) => (a.name || '').localeCompare(b.name || ''),
+      sortOrder: sortField === 'name' ? (sortOrder as 'ascend' | 'descend' | null) : null,
     },
     {
       title: '说明',
@@ -348,7 +440,7 @@ export default function DevicePage() {
             value={searchID}
             onChange={(e) => setSearchID(e.target.value)}
             style={{ width: '200px', borderRadius: '8px' }}
-            onPressEnter={fetchData}
+            onPressEnter={handleSearch}
           />
           <Input
             placeholder="按设备名称搜索..."
@@ -356,7 +448,7 @@ export default function DevicePage() {
             value={searchName}
             onChange={(e) => setSearchName(e.target.value)}
             style={{ width: '200px', borderRadius: '8px' }}
-            onPressEnter={fetchData}
+            onPressEnter={handleSearch}
           />
           <Select
             placeholder="过滤设备类型..."
@@ -369,7 +461,7 @@ export default function DevicePage() {
               <Select.Option key={t.id} value={t.id}>{t.name} ({t.model})</Select.Option>
             ))}
           </Select>
-          <Button type="primary" icon={<SearchOutlined />} onClick={fetchData}>
+          <Button type="primary" icon={<SearchOutlined />} onClick={handleSearch}>
             查询
           </Button>
           <Button icon={<ReloadOutlined />} onClick={handleResetSearch}>
@@ -388,7 +480,15 @@ export default function DevicePage() {
           dataSource={data}
           rowKey="id"
           loading={loading}
-          pagination={{ pageSize: 8, showSizeChanger: false }}
+          pagination={{
+            current: page,
+            pageSize: pageSize,
+            pageSizeOptions: ['15', '25', '50', '100'],
+            showSizeChanger: true,
+            showQuickJumper: true,
+            total: data.length,
+          }}
+          onChange={handleTableChange}
           locale={{ emptyText: <Empty description="未检索到任何设备记录" /> }}
           style={{ background: 'transparent' }}
         />
