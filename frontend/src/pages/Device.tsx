@@ -570,13 +570,13 @@ export default function DevicePage() {
                   name="number"
                   noStyle
                   rules={[
-                    { required: true, message: '请点击生成数字后缀' },
-                    { len: 4, message: '必须是4位数字' },
+                    { required: true, message: '请输入或生成4位数字后缀' },
+                    { pattern: /^\d{4}$/, message: '必须是4位数字' },
                   ]}
                 >
                   <Input
-                    placeholder="生成获取 4 位数字..."
-                    readOnly
+                    placeholder="请输入或生成 4 位数字"
+                    maxLength={4}
                     style={{
                       flex: 1,
                       fontWeight: 'bold',

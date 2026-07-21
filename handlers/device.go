@@ -124,7 +124,7 @@ func CreateDevice(c *gin.Context) {
 		return
 	}
 	if count > 0 {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "此四位数字后缀已被其他设备占用，请点击重新生成"})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "此四位数字后缀已被其他设备占用，请重新输入或生成"})
 		return
 	}
 
@@ -141,7 +141,7 @@ func CreateDevice(c *gin.Context) {
 
 	if err := models.DB.Create(&dev).Error; err != nil {
 		if strings.Contains(err.Error(), "UNIQUE") || strings.Contains(err.Error(), "unique") {
-			c.JSON(http.StatusConflict, gin.H{"error": "该设备后缀由于并发已被抢占，请点击重新生成并提交"})
+			c.JSON(http.StatusConflict, gin.H{"error": "该设备后缀已被占用，请重新输入或生成并提交"})
 			return
 		}
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "保存设备失败: " + err.Error()})
