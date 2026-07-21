@@ -53,12 +53,63 @@ export default function DevicePage() {
   const sortField = searchParams.get('sortField') || '';
   const sortOrder = searchParams.get('sortOrder') || '';
 
-  // 在 URL 参数变化时，同步到本地输入框的 state，保证回显
+  // 在 URL 参数变化时，同步到本地输入框的 state，仅当不一致时触发以避免循环和打字干扰
   useEffect(() => {
-    setSearchID(urlSearchID);
-    setSearchName(urlSearchName);
-    setSearchTypeID(urlSearchTypeID);
+    if (searchID !== urlSearchID) setSearchID(urlSearchID);
+    if (searchName !== urlSearchName) setSearchName(urlSearchName);
+    if (searchTypeID !== urlSearchTypeID) setSearchTypeID(urlSearchTypeID);
   }, [urlSearchID, urlSearchName, urlSearchTypeID]);
+
+  // 对本地 searchID 输入进行防抖同步到 URL 过滤条件中
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      const newParams = new URLSearchParams(searchParams);
+      const oldVal = newParams.get('device_id') || '';
+      if (oldVal !== searchID) {
+        if (searchID) {
+          newParams.set('device_id', searchID);
+        } else {
+          newParams.delete('device_id');
+        }
+        newParams.set('page', '1'); // 重置页码
+        setSearchParams(newParams);
+      }
+    }, 500);
+
+    return () => clearTimeout(handler);
+  }, [searchID]);
+
+  // 对本地 searchName 输入进行防抖同步到 URL 过滤条件中
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      const newParams = new URLSearchParams(searchParams);
+      const oldVal = newParams.get('name') || '';
+      if (oldVal !== searchName) {
+        if (searchName) {
+          newParams.set('name', searchName);
+        } else {
+          newParams.delete('name');
+        }
+        newParams.set('page', '1'); // 重置页码
+        setSearchParams(newParams);
+      }
+    }, 500);
+
+    return () => clearTimeout(handler);
+  }, [searchName]);
+
+  // 针对下拉框变更，立即更新 URL
+  const handleTypeIDChange = (val: number | undefined) => {
+    setSearchTypeID(val);
+    const newParams = new URLSearchParams(searchParams);
+    if (val !== undefined) {
+      newParams.set('device_type_id', String(val));
+    } else {
+      newParams.delete('device_type_id');
+    }
+    newParams.set('page', '1'); // 重置页码
+    setSearchParams(newParams);
+  };
 
   // 获取用户权限
   const fetchUserPermission = async () => {
@@ -112,52 +163,6 @@ export default function DevicePage() {
   useEffect(() => {
     fetchData();
   }, [urlSearchID, urlSearchName, urlSearchTypeID]);
-
-  // 执行查询，将输入框状态同步到 URL
-  const handleSearch = () => {
-    const newParams = new URLSearchParams(searchParams);
-    let changed = false;
-
-    const setOrDelete = (key: string, value: string) => {
-      const old = newParams.get(key) || '';
-      if (old !== value) {
-        changed = true;
-        if (value) {
-          newParams.set(key, value);
-        } else {
-          newParams.delete(key);
-        }
-      }
-    };
-
-    setOrDelete('device_id', searchID);
-    setOrDelete('name', searchName);
-    setOrDelete('device_type_id', searchTypeID ? String(searchTypeID) : '');
-
-    // 每次查询重置页码为 1
-    if (newParams.get('page') !== '1') {
-      newParams.set('page', '1');
-      changed = true;
-    }
-
-    if (changed) {
-      setSearchParams(newParams);
-    } else {
-      // 过滤条件没有改变时，手动重新获取数据以起到刷新效果
-      fetchData();
-    }
-  };
-
-  const handleResetSearch = () => {
-    setSearchID('');
-    setSearchName('');
-    setSearchTypeID(undefined);
-
-    const newParams = new URLSearchParams();
-    newParams.set('page', '1');
-    newParams.set('pageSize', '15');
-    setSearchParams(newParams);
-  };
 
   // 处理表格页码、条数、排序变化并同步到 URL
   const handleTableChange = (pagination: any, filters: any, sorter: any) => {
@@ -440,7 +445,6 @@ export default function DevicePage() {
             value={searchID}
             onChange={(e) => setSearchID(e.target.value)}
             style={{ width: '200px', borderRadius: '8px' }}
-            onPressEnter={handleSearch}
           />
           <Input
             placeholder="按设备名称搜索..."
@@ -448,12 +452,11 @@ export default function DevicePage() {
             value={searchName}
             onChange={(e) => setSearchName(e.target.value)}
             style={{ width: '200px', borderRadius: '8px' }}
-            onPressEnter={handleSearch}
           />
           <Select
             placeholder="过滤设备类型..."
             value={searchTypeID}
-            onChange={(val) => setSearchTypeID(val)}
+            onChange={handleTypeIDChange}
             style={{ width: '220px' }}
             allowClear
           >
@@ -461,12 +464,6 @@ export default function DevicePage() {
               <Select.Option key={t.id} value={t.id}>{t.name} ({t.model})</Select.Option>
             ))}
           </Select>
-          <Button type="primary" icon={<SearchOutlined />} onClick={handleSearch}>
-            查询
-          </Button>
-          <Button icon={<ReloadOutlined />} onClick={handleResetSearch}>
-            重置
-          </Button>
           {!isAdmin && (
             <Tag color="warning" style={{ marginLeft: 'auto', borderRadius: '4px', padding: '4px 8px' }}>
               只读模式：仅管理员支持录入及修改
