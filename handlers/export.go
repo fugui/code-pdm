@@ -68,7 +68,7 @@ func ExportAllExcel(c *gin.Context) {
 	// 写入数据
 	for rIdx, dt := range deviceTypes {
 		row := rIdx + 2
-		f.SetCellValue(sheetTypes, fmt.Sprintf("A%d", row), dt.ID)
+		f.SetCellValue(sheetTypes, fmt.Sprintf("A%d", row), rIdx+1)
 		f.SetCellValue(sheetTypes, fmt.Sprintf("B%d", row), dt.Model)
 		f.SetCellValue(sheetTypes, fmt.Sprintf("C%d", row), dt.Name)
 		f.SetCellValue(sheetTypes, fmt.Sprintf("D%d", row), dt.Description)
@@ -103,7 +103,7 @@ func ExportAllExcel(c *gin.Context) {
 			typeModel = d.DeviceType.Model
 		}
 
-		f.SetCellValue(sheetDevices, fmt.Sprintf("A%d", row), d.ID)
+		f.SetCellValue(sheetDevices, fmt.Sprintf("A%d", row), rIdx+1)
 		f.SetCellValue(sheetDevices, fmt.Sprintf("B%d", row), d.DeviceID)
 		f.SetCellValue(sheetDevices, fmt.Sprintf("C%d", row), d.Letter)
 		f.SetCellValue(sheetDevices, fmt.Sprintf("D%d", row), d.Number)
