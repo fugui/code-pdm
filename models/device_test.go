@@ -6,15 +6,13 @@ import (
 	"testing"
 	"time"
 
-	"code-pdm/config"
 	"code-pdm/utils"
 
 	"gorm.io/gorm"
 )
 
 func TestDeviceIDConcurrencySafety(t *testing.T) {
-	// 1. 初始化临时测试配置与内存 SQLite
-	config.AppConfig.Database.Path = "file::memory:?cache=shared"
+	// 1. 初始化临时测试配置
 	InitDB()
 
 	// 清空历史数据并创建一条设备类型

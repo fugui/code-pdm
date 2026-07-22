@@ -7,7 +7,6 @@ import (
 
 	"code-pdm/config"
 
-	"github.com/glebarez/sqlite"
 	"golang.org/x/crypto/bcrypt"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
@@ -29,22 +28,12 @@ func InitDB() {
 		},
 	)
 
-	var dialector gorm.Dialector
-	if config.AppConfig.Database.Driver == "sqlite" || config.AppConfig.Database.Host == "" {
-		dbPath := config.AppConfig.Database.Path
-		if dbPath == "" {
-			dbPath = "file::memory:?cache=shared"
-		}
-		log.Printf("Connecting to SQLite database (%s) for testing/fallback...\n", dbPath)
-		dialector = sqlite.Open(dbPath)
-	} else {
-		dsn := config.AppConfig.Database.GetDSN()
-		log.Printf("Connecting to PostgreSQL database (%s)...\n", config.AppConfig.Database.DBName)
-		dialector = postgres.New(postgres.Config{
-			DSN:                  dsn,
-			PreferSimpleProtocol: true,
-		})
-	}
+	dsn := config.AppConfig.Database.GetDSN()
+	log.Printf("Connecting to PostgreSQL database (%s)...\n", config.AppConfig.Database.DBName)
+	dialector := postgres.New(postgres.Config{
+		DSN:                  dsn,
+		PreferSimpleProtocol: true,
+	})
 
 	DB, err = gorm.Open(dialector, &gorm.Config{
 		Logger:                                   dbLogger,
@@ -56,11 +45,7 @@ func InitDB() {
 
 	sqlDB, err := DB.DB()
 	if err == nil {
-		if config.AppConfig.Database.Driver == "sqlite" || config.AppConfig.Database.Host == "" {
-			sqlDB.SetMaxOpenConns(1)
-		} else {
-			sqlDB.SetMaxOpenConns(20)
-		}
+		sqlDB.SetMaxOpenConns(20)
 	}
 
 	log.Println("AutoMigrating database schema...")

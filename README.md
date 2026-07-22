@@ -6,7 +6,7 @@
 
 ## 🛠️ 技术栈与工程结构
 
-*   **后端**：Go 1.25.0 + Gin + GORM + PostgreSQL (包含单元测试 SQLite 回退)
+*   **后端**：Go 1.25.0 + Gin + GORM + PostgreSQL
 *   **前端**：React 18 + Vite 5 + TypeScript + Ant Design 5
 *   **架构模式**：自适应独立运行模式 & 微前端联邦嵌入模式
 
