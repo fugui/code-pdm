@@ -6,4 +6,13 @@ auth:
   jwt_secret: "ABCDEFGHIJKLMNOPQRSTVUWXYZ0987654321"
 
 database:
-  path: "code_pdm.db"
+  driver: "postgres"
+  host: "127.0.0.1"
+  port: 5432
+  user: "postgres"
+  password: "YOUR_POSTGRES_PASSWORD"
+  dbname: "code_shield"
+  sslmode: "disable"
+  timezone: "Asia/Shanghai"
+  max_open_conns: 50
+  max_idle_conns: 10
