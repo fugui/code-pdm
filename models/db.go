@@ -40,7 +40,10 @@ func InitDB() {
 	} else {
 		dsn := config.AppConfig.Database.GetDSN()
 		log.Printf("Connecting to PostgreSQL database (%s)...\n", config.AppConfig.Database.DBName)
-		dialector = postgres.Open(dsn)
+		dialector = postgres.New(postgres.Config{
+			DSN:                  dsn,
+			PreferSimpleProtocol: true,
+		})
 	}
 
 	DB, err = gorm.Open(dialector, &gorm.Config{
