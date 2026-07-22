@@ -9,6 +9,7 @@ import (
 
 	"github.com/glebarez/sqlite"
 	"golang.org/x/crypto/bcrypt"
+	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
 )
@@ -28,25 +29,38 @@ func InitDB() {
 		},
 	)
 
-	dbPath := config.AppConfig.Database.Path
-	if dbPath == "" {
-		dbPath = "code_pdm.db"
+	var dialector gorm.Dialector
+	if config.AppConfig.Database.Driver == "sqlite" || config.AppConfig.Database.Host == "" {
+		dbPath := config.AppConfig.Database.Path
+		if dbPath == "" {
+			dbPath = "file::memory:?cache=shared"
+		}
+		log.Printf("Connecting to SQLite database (%s) for testing/fallback...\n", dbPath)
+		dialector = sqlite.Open(dbPath)
+	} else {
+		dsn := config.AppConfig.Database.GetDSN()
+		log.Printf("Connecting to PostgreSQL database (%s)...\n", config.AppConfig.Database.DBName)
+		dialector = postgres.Open(dsn)
 	}
 
-	DB, err = gorm.Open(sqlite.Open(dbPath), &gorm.Config{
-		Logger: dbLogger,
+	DB, err = gorm.Open(dialector, &gorm.Config{
+		Logger:                                   dbLogger,
+		DisableForeignKeyConstraintWhenMigrating: true,
 	})
 	if err != nil {
 		log.Fatalf("failed to connect database: %v", err)
 	}
 
-	// 限制 SQLite 连接数为 1 彻底避免高并发锁库和死锁
 	sqlDB, err := DB.DB()
 	if err == nil {
-		sqlDB.SetMaxOpenConns(1)
+		if config.AppConfig.Database.Driver == "sqlite" || config.AppConfig.Database.Host == "" {
+			sqlDB.SetMaxOpenConns(1)
+		} else {
+			sqlDB.SetMaxOpenConns(20)
+		}
 	}
 
-	log.Printf("AutoMigrating database schema for %s ...\n", dbPath)
+	log.Println("AutoMigrating database schema...")
 	err = DB.AutoMigrate(
 		&User{},
 		&DeviceType{},
