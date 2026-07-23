@@ -32,7 +32,8 @@ export default function DeviceTypePage() {
   const fetchUserPermission = async () => {
     try {
       const user = await apiFetch('/me');
-      setIsAdmin(!!user.is_admin);
+      const isPdmAdmin = !!user.is_admin || (Array.isArray(user.roles) && (user.roles.includes('super_admin') || user.roles.includes('pdm_admin')));
+      setIsAdmin(isPdmAdmin);
     } catch (err) {
       console.error('获取权限失败:', err);
     }

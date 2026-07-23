@@ -37,6 +37,7 @@ func AuthMiddleware() gin.HandlerFunc {
 		c.Set("username", claims.Username)
 		c.Set("name", claims.Name)
 		c.Set("isAdmin", claims.IsAdmin)
+		c.Set("roles", claims.Roles)
 
 		c.Next()
 	}
@@ -46,15 +47,23 @@ func AuthMiddleware() gin.HandlerFunc {
 func AdminMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		isAdminVal, exists := c.Get("isAdmin")
-		if !exists {
-			c.JSON(http.StatusForbidden, gin.H{"error": "无权访问此 API"})
-			c.Abort()
-			return
+		isAdmin := exists && isAdminVal.(bool)
+
+		rolesVal, rolesExists := c.Get("roles")
+		hasRole := false
+		if rolesExists {
+			if roles, ok := rolesVal.([]string); ok {
+				for _, r := range roles {
+					if r == "super_admin" || r == "pdm_admin" {
+						hasRole = true
+						break
+					}
+				}
+			}
 		}
 
-		isAdmin, ok := isAdminVal.(bool)
-		if !ok || !isAdmin {
-			c.JSON(http.StatusForbidden, gin.H{"error": "操作失败，普通用户只有查看权限，仅限管理员操作"})
+		if !isAdmin && !hasRole {
+			c.JSON(http.StatusForbidden, gin.H{"error": "操作失败，仅限 PDM 管理员或超级管理员操作"})
 			c.Abort()
 			return
 		}

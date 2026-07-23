@@ -16,12 +16,13 @@ import (
 
 // Claims 定义与 code-bench 一致的 JWT 荷载结构
 type Claims struct {
-	UserID     uint   `json:"user_id"`
-	Username   string `json:"username"`
-	Email      string `json:"email"`
-	Name       string `json:"name"`
-	EmployeeID string `json:"employee_id"`
-	IsAdmin    bool   `json:"is_admin"`
+	UserID     uint     `json:"user_id"`
+	Username   string   `json:"username"`
+	Email      string   `json:"email"`
+	Name       string   `json:"name"`
+	EmployeeID string   `json:"employee_id"`
+	IsAdmin    bool     `json:"is_admin"`
+	Roles      []string `json:"roles"`
 	jwt.RegisteredClaims
 }
 
