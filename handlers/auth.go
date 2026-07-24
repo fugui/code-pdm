@@ -116,10 +116,13 @@ func GetMe(c *gin.Context) {
 	username, _ := c.Get("username")
 	name, _ := c.Get("name")
 	isAdmin, _ := c.Get("isAdmin")
+	rolesVal, _ := c.Get("roles")
+	roles, _ := rolesVal.([]string)
 
 	c.JSON(http.StatusOK, gin.H{
 		"username": username,
 		"name":     name,
 		"is_admin": isAdmin,
+		"roles":    roles,
 	})
 }
