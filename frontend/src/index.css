@@ -1,19 +1,19 @@
 :root {
-  --primary-color: #3b82f6;
-  --bg-color: #0b1120;
-  --card-bg: #0f172a;
-  --border-color: #1e293b;
-  --text-color: #f8fafc;
+  --primary-color: var(--portal-primary-color, #3b82f6);
+  --bg-color: var(--portal-bg-color, #0b1120);
+  --card-bg: var(--portal-card-bg, #0f172a);
+  --border-color: var(--portal-border-color, #1e293b);
+  --text-color: var(--portal-text-color, #f8fafc);
 }
 
 :root.light-theme {
-  --bg-color: #f8fafc;
-  --card-bg: #ffffff;
-  --border-color: #cbd5e1;
-  --text-color: #0f172a;
+  --bg-color: var(--portal-bg-color, #f8fafc);
+  --card-bg: var(--portal-card-bg, #ffffff);
+  --border-color: var(--portal-border-color, #cbd5e1);
+  --text-color: var(--portal-text-color, #0f172a);
 }
 
-body {
+.pdm-app {
   margin: 0;
   padding: 0;
   background-color: var(--bg-color);
@@ -25,55 +25,55 @@ body {
 }
 
 /* 兼容 Ant Design 亮/暗色系统的主体卡片过渡效果 */
-.ant-card {
+.pdm-app .ant-card {
   background: var(--card-bg) !important;
   border-color: var(--border-color) !important;
   box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.15), 
-              inset 0 1px 0 0 rgba(255, 255, 255, 0.05) !important; /* 顶内高光，营造物理厚度 */
+              inset 0 1px 0 0 rgba(255, 255, 255, 0.05) !important;
   transition: background-color 0.3s, border-color 0.3s, box-shadow 0.3s !important;
 }
 
-:root.light-theme .ant-card {
+:root.light-theme .pdm-app .ant-card {
   box-shadow: 0 8px 24px 0 rgba(15, 23, 42, 0.04),
               inset 0 1px 0 0 rgba(255, 255, 255, 0.8) !important;
 }
 
-.ant-card-head {
+.pdm-app .ant-card-head {
   border-bottom-color: var(--border-color) !important;
   color: var(--text-color) !important;
   transition: border-bottom-color 0.3s, color 0.3s !important;
 }
 
-.ant-table-wrapper {
+.pdm-app .ant-table-wrapper {
   background: transparent !important;
 }
 
 /* 强制使表格容器有细腻的边界，产生浮动面板效果 */
-.ant-table-container {
+.pdm-app .ant-table-container {
   border: 1px solid var(--border-color) !important;
   border-radius: 8px !important;
   overflow: hidden !important;
   box-shadow: 0 4px 16px 0 rgba(0, 0, 0, 0.08) !important;
 }
 
-:root.light-theme .ant-table-container {
+:root.light-theme .pdm-app .ant-table-container {
   box-shadow: 0 4px 16px 0 rgba(0, 0, 0, 0.01) !important;
 }
 
-.ant-table {
+.pdm-app .ant-table {
   background: transparent !important;
   color: var(--text-color) !important;
 }
 
 /* 表头背景：带有一点点立面微弱渐变，极大强化立体观感 */
-.ant-table-thead > tr > th {
+.pdm-app .ant-table-thead > tr > th {
   background: linear-gradient(180deg, var(--bg-color) 0%, var(--card-bg) 100%) !important;
   color: var(--text-color) !important;
   font-weight: 600 !important;
   border-bottom: 1px solid var(--border-color) !important;
 }
 
-.ant-table-tbody > tr > td {
+.pdm-app .ant-table-tbody > tr > td {
   background: var(--card-bg) !important;
   color: var(--text-color) !important;
   border-bottom: 1px solid var(--border-color) !important;
@@ -81,20 +81,20 @@ body {
 }
 
 /* 最后一行的单元格去除底边，显得更整洁 */
-.ant-table-tbody > tr:last-child > td {
+.pdm-app .ant-table-tbody > tr:last-child > td {
   border-bottom: none !important;
 }
 
-.ant-table-tbody > tr.ant-table-row:hover > td,
-.ant-table-tbody > tr > td.ant-table-cell-row-hover {
+.pdm-app .ant-table-tbody > tr.ant-table-row:hover > td,
+.pdm-app .ant-table-tbody > tr > td.ant-table-cell-row-hover {
   background: var(--bg-color) !important;
 }
 
-.ant-pagination {
+.pdm-app .ant-pagination {
   color: var(--text-color) !important;
 }
 
-.ant-pagination-item-active {
+.pdm-app .ant-pagination-item-active {
   background: var(--bg-color) !important;
   border-color: var(--primary-color) !important;
 }

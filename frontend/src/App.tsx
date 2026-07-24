@@ -262,23 +262,24 @@ export default function App({ isEmbedded = false }: { isEmbedded?: boolean }) {
         },
       }}
     >
-      <Layout style={{ minHeight: '100vh', background: 'var(--bg-color)', transition: 'background-color 0.3s' }}>
-        <Sider
-          width={240}
-          style={{ background: 'var(--card-bg)', borderRight: '1px solid var(--border-color)', transition: 'background-color 0.3s, border-color 0.3s' }}
-        >
-          <div style={{ height: '64px', padding: '16px', display: 'flex', alignItems: 'center', gap: '8px', borderBottom: '1px solid var(--border-color)' }}>
-            <div style={{
-              width: '32px',
-              height: '32px',
-              background: 'linear-gradient(135deg, #3b82f6 0%, #a855f7 100%)',
-              borderRadius: '8px',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              color: 'white',
-              fontWeight: 'bold'
-            }}>
+      <div className="pdm-app">
+        <Layout style={{ minHeight: '100vh', background: 'var(--bg-color)', transition: 'background-color 0.3s' }}>
+          <Sider
+            width={240}
+            style={{ background: 'var(--card-bg)', borderRight: '1px solid var(--border-color)', transition: 'background-color 0.3s, border-color 0.3s' }}
+          >
+            <div style={{ height: '64px', padding: '16px', display: 'flex', alignItems: 'center', gap: '8px', borderBottom: '1px solid var(--border-color)' }}>
+              <div style={{
+                width: '32px',
+                height: '32px',
+                background: 'linear-gradient(135deg, #3b82f6 0%, #a855f7 100%)',
+                borderRadius: '8px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                color: 'white',
+                fontWeight: 'bold'
+              }}>
               P
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', lineHeight: 1.2 }}>
@@ -330,6 +331,7 @@ export default function App({ isEmbedded = false }: { isEmbedded?: boolean }) {
           </Content>
         </Layout>
       </Layout>
+      </div>
     </ConfigProvider>
   );
 }
