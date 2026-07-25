@@ -191,5 +191,3 @@ func DeleteDeviceType(c *gin.Context) {
 
 	c.JSON(http.StatusOK, gin.H{"message": "删除成功"})
 }
-
-

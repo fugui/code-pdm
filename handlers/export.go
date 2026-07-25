@@ -37,8 +37,8 @@ func ExportAllExcel(c *gin.Context) {
 
 	// 样式定义：表头字体加粗，带有淡淡的背景灰
 	headerStyle, err := f.NewStyle(&excelize.Style{
-		Font: &excelize.Font{Bold: true, Color: "000000", Size: 11},
-		Fill: excelize.Fill{Type: "pattern", Color: []string{"EAEAEA"}, Pattern: 1},
+		Font:      &excelize.Font{Bold: true, Color: "000000", Size: 11},
+		Fill:      excelize.Fill{Type: "pattern", Color: []string{"EAEAEA"}, Pattern: 1},
 		Alignment: &excelize.Alignment{Horizontal: "center", Vertical: "center"},
 	})
 	if err != nil {
