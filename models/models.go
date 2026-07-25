@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"gorm.io/datatypes"
+	"gorm.io/gorm"
 )
 
 // User 用户实体
@@ -19,7 +20,7 @@ type User struct {
 	Password     string         `gorm:"not null" json:"-"`
 	RegMethod    string         `gorm:"default:'local'" json:"reg_method"`
 	IsActive     bool           `gorm:"default:true" json:"is_active"`
-	IsAdmin      bool           `gorm:"default:false" json:"is_admin"`
+	IsAdmin      bool           `gorm:"-" json:"is_admin"`
 	Roles        datatypes.JSON `gorm:"type:text" json:"roles"`
 	LastLogin    *time.Time     `json:"last_login"`
 	LastIP       string         `gorm:"default:''" json:"last_ip"`
@@ -32,19 +33,12 @@ func (u *User) GetRoles() []string {
 	if len(u.Roles) > 0 {
 		_ = json.Unmarshal(u.Roles, &roles)
 	}
-	if u.IsAdmin {
-		hasSuper := false
-		for _, r := range roles {
-			if r == "super_admin" {
-				hasSuper = true
-				break
-			}
-		}
-		if !hasSuper {
-			roles = append([]string{"super_admin"}, roles...)
-		}
-	}
 	return roles
+}
+
+func (u *User) AfterFind(tx *gorm.DB) (err error) {
+	u.IsAdmin = u.IsSuperAdmin()
+	return
 }
 
 func (u *User) HasRole(targetRole string) bool {

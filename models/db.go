@@ -8,6 +8,7 @@ import (
 	"code-pdm/config"
 
 	"golang.org/x/crypto/bcrypt"
+	"gorm.io/datatypes"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
@@ -72,7 +73,7 @@ func seedUsers() {
 			Username: "admin",
 			Name:     "管理员",
 			Password: string(adminHash),
-			IsAdmin:  true,
+			Roles:    datatypes.JSON([]byte("[\"super_admin\"]")),
 		}
 		if err := DB.Create(&admin).Error; err != nil {
 			log.Printf("failed to seed admin user: %v", err)
@@ -86,7 +87,6 @@ func seedUsers() {
 			Username: "user",
 			Name:     "普通用户",
 			Password: string(userHash),
-			IsAdmin:  false,
 		}
 		if err := DB.Create(&normalUser).Error; err != nil {
 			log.Printf("failed to seed normal user: %v", err)
