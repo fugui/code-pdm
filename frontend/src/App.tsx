@@ -313,8 +313,8 @@ export default function App({ isEmbedded = false }: { isEmbedded?: boolean }) {
             </span>
             {user && (
               <Space>
-                <Tag color={user.is_admin ? 'gold' : 'blue'} icon={<UserOutlined />} style={{ padding: '4px 8px', borderRadius: '4px' }}>
-                  {user.name || user.username} ({user.is_admin ? '管理员' : '普通用户'})
+                <Tag color={Array.isArray(user.roles) && (user.roles.includes('super_admin') || user.roles.includes('pdm_admin')) ? 'gold' : 'blue'} icon={<UserOutlined />} style={{ padding: '4px 8px', borderRadius: '4px' }}>
+                  {user.name || user.username} ({Array.isArray(user.roles) && (user.roles.includes('super_admin') || user.roles.includes('pdm_admin')) ? '管理员' : '普通用户'})
                 </Tag>
                 <Button type="text" icon={<LogoutOutlined />} onClick={handleLogout} style={{ color: 'var(--text-color)', opacity: 0.8 }}>
                   退出登录

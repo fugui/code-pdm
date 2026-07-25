@@ -36,7 +36,6 @@ func AuthMiddleware() gin.HandlerFunc {
 		// 挂载会话元数据
 		c.Set("username", claims.Username)
 		c.Set("name", claims.Name)
-		c.Set("isAdmin", claims.IsAdmin)
 		c.Set("roles", claims.Roles)
 
 		c.Next()
@@ -98,7 +97,7 @@ func Login(c *gin.Context) {
 		return
 	}
 
-	token, err := utils.GenerateToken(user.ID, user.Username, user.Name, user.IsAdmin)
+	token, err := utils.GenerateToken(user.ID, user.Username, user.Name, user.GetRoles())
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Token 生成失败"})
 		return
@@ -109,7 +108,7 @@ func Login(c *gin.Context) {
 		"user": gin.H{
 			"username": user.Username,
 			"name":     user.Name,
-			"is_admin": user.IsAdmin,
+			"roles":    user.GetRoles(),
 		},
 	})
 }
@@ -118,14 +117,12 @@ func Login(c *gin.Context) {
 func GetMe(c *gin.Context) {
 	username, _ := c.Get("username")
 	name, _ := c.Get("name")
-	isAdmin, _ := c.Get("isAdmin")
 	rolesVal, _ := c.Get("roles")
 	roles, _ := rolesVal.([]string)
 
 	c.JSON(http.StatusOK, gin.H{
 		"username": username,
 		"name":     name,
-		"is_admin": isAdmin,
 		"roles":    roles,
 	})
 }

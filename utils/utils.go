@@ -21,13 +21,12 @@ type Claims struct {
 	Email      string   `json:"email"`
 	Name       string   `json:"name"`
 	EmployeeID string   `json:"employee_id"`
-	IsAdmin    bool     `json:"is_admin"`
 	Roles      []string `json:"roles"`
 	jwt.RegisteredClaims
 }
 
 // GenerateToken 生成本地登录 JWT (主要用于独立运行调试)
-func GenerateToken(userID uint, username string, name string, isAdmin bool) (string, error) {
+func GenerateToken(userID uint, username string, name string, roles []string) (string, error) {
 	secret := []byte(config.AppConfig.Auth.JWTSecret)
 	if len(secret) == 0 {
 		secret = []byte("ABCDEFGHIJKLMNOPQRSTVUWXYZ0987654321") // 缺省回退
@@ -38,7 +37,7 @@ func GenerateToken(userID uint, username string, name string, isAdmin bool) (str
 		UserID:   userID,
 		Username: username,
 		Name:     name,
-		IsAdmin:  isAdmin,
+		Roles:    roles,
 		RegisteredClaims: jwt.RegisteredClaims{
 			ExpiresAt: jwt.NewNumericDate(expirationTime),
 		},
