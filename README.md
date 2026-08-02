@@ -94,4 +94,54 @@ gateways:
   pdm: "http://127.0.0.1:8085"       # 新增 pdm 路由反向代理，指向 8085 端口
 ```
 
-主门户 `code-bench` 的前端会通过 `@originjs/vite-plugin-federation` 自动加载 `/pdm/assets/remoteEntry.js` 入口，并在 `/pdm/*` 路由下无缝嵌套呈现设备管理核心页面，同时共享 JWT 签名，达成 SSO 单点登录及管理员与普通用户的权限识别。
+主门户 `code-bench` 的前端会通过 `@originjs/vite-plugin-federation` 自动加载 `/pdm/assets/remoteEntry.js` 入口，并在 `/pdm/*` 路由下无缝嵌套呼现设备管理核心页面，同时共享 JWT 签名，达成 SSO 单点登录及管理员与普通用户的权限识别。
+
+---
+
+## 🔒 权限架构 (RBAC Roles)
+
+`code-pdm` 全面收敛至基于 **Roles 角色权限体系**，完全废弃历史 `is_admin` 物理字段与硬编码判断。
+
+*   **角色类型**：系统识别两种核心角色：
+    *   `super_admin`：超级管理员，拥有全平台最高权限。
+    *   `pdm_admin`： PDM 子系统管理员，可进行设备型号与设备 ID 的增删改操作。
+    *   普通用户：仅可查看设备列表与导出数据，不得操作数据内容。
+*   **判断逻辑**：后端通过 `User.HasRole("pdm_admin")` 函数进行权限校验；`super_admin` 自动拥有所有子角色权限，无需单独判断。
+*   **共享签名**：通过与 `code-bench` 共享同一个 `jwt_secret`，实现单点登录与权限流通。
+
+---
+
+## 🖥️ 部署说明
+
+### PostgreSQL 简单协议 (PreferSimpleProtocol)
+
+如果在部分 PostgreSQL 版本或连接池环境下遇到预编译语句缓存异常，可在 `config.yaml` 中启用简单协议防止此类问题：
+
+```yaml
+database:
+  host: "127.0.0.1"
+  port: 5432
+  user: "postgres"
+  password: "YOUR_POSTGRES_PASSWORD"
+  dbname: "code_pdm"
+  sslmode: "disable"
+  prefer_simple_protocol: true   # 启用简单协议，防止预编译语句缓存异常
+```
+
+### 前端样式隔离
+
+前端所有 CSS 样式均作用域限定在 `.pdm-app` 容器内，避免与主应用或其他微前端子应用的样式冲突。同时通过 Portal CSS 变量继承全局主题和色系，保证 UI 风格一致性。
+
+---
+
+## 🏷️ 版本历史
+
+### v0.2.0 (2026-07-31)
+*   **权限体系全面收敛至 Roles**：径量清理 `is_admin` 物理字段与硬编码判断，全量收敛至基于 `Roles` 数组字段的 RBAC 权限体系，防止权限逗层。
+*   **PostgreSQL PreferSimpleProtocol**：开启简单协议防止预编译语句缓存异常导致的数据库操作异常问题。
+*   **微前端样式作用域隔离**：前端全量 CSS 限定在 `.pdm-app` 容器，接入 Portal CSS 变量继承全局主题，解决样式覆盖与内漏问题。
+*   **`/api/me` 接口增强**：`GetMe` 接口额外返回 `roles` 字段，供前端审读当前用户角色并动态控制界面权限显示。
+
+### v0.1.0 (2026-06-08)
+*   **初始化新建微服务**：建立 code-pdm 产品数据管理核心功能，包括设备型号管理、设备 ID 档案管理、Excel 双 Sheet 导出、并发安全后缀生成算法等。
+*   **微前端集成**：基于 Vite Module Federation 实现微前端远程入口，以 `code-bench` 为宿主进行嵌套公发。
