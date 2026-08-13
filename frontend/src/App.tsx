@@ -10,6 +10,7 @@ import { DatabaseOutlined, ApartmentOutlined, UserOutlined, LogoutOutlined, Lock
 import DeviceTypePage from './pages/DeviceType';
 import DevicePage from './pages/Device';
 import { apiFetch } from './api/client';
+import { useTheme, AUTH_TOKEN_KEY } from '@code/common';
 
 const { Header, Sider, Content } = Layout;
 
@@ -143,44 +144,10 @@ export default function App({ isEmbedded = false }: { isEmbedded?: boolean }) {
   const navigate = useNavigate();
   const [user, setUser] = useState<any>(null);
   const [loadingUser, setLoadingUser] = useState(true);
-  const [currentTheme, setCurrentTheme] = useState<'dark' | 'light'>(() => {
-    const saved = localStorage.getItem('code-theme');
-    if (saved === 'dark' || saved === 'light') return saved;
-    return document.documentElement.classList.contains('light-theme') ? 'light' : 'dark';
-  });
-
-  useEffect(() => {
-    const checkTheme = () => {
-      const savedTheme = localStorage.getItem('code-theme');
-      if (savedTheme === 'dark' || savedTheme === 'light') {
-        setCurrentTheme(savedTheme);
-        return;
-      }
-      const isLight = document.documentElement.classList.contains('light-theme') || 
-                      document.documentElement.getAttribute('class')?.includes('light-theme');
-      setCurrentTheme(isLight ? 'light' : 'dark');
-    };
-
-    checkTheme();
-
-    const observer = new MutationObserver((mutations) => {
-      mutations.forEach((mutation) => {
-        if (mutation.attributeName === 'class') {
-          checkTheme();
-        }
-      });
-    });
-
-    observer.observe(document.documentElement, {
-      attributes: true,
-      attributeFilter: ['class'],
-    });
-
-    return () => observer.disconnect();
-  }, []);
+  const { theme: currentTheme } = useTheme('dark');
 
   const loadUser = async () => {
-    const token = localStorage.getItem('code_shield_token');
+    const token = localStorage.getItem(AUTH_TOKEN_KEY);
     if (!token) {
       setUser(null);
       setLoadingUser(false);
