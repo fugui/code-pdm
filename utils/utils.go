@@ -1,6 +1,7 @@
 package utils
 
 import (
+	commonAuth "code-common/backend/auth"
 	"crypto/rand"
 	"errors"
 	"fmt"
@@ -10,63 +11,26 @@ import (
 
 	"code-pdm/config"
 
-	"github.com/golang-jwt/jwt/v5"
 	"gorm.io/gorm"
 )
 
-// Claims 定义与 code-bench 一致的 JWT 荷载结构
-type Claims struct {
-	UserID     uint     `json:"user_id"`
-	Username   string   `json:"username"`
-	Email      string   `json:"email"`
-	Name       string   `json:"name"`
-	EmployeeID string   `json:"employee_id"`
-	Roles      []string `json:"roles"`
-	jwt.RegisteredClaims
-}
+type Claims = commonAuth.PortalClaims
 
 // GenerateToken 生成本地登录 JWT (主要用于独立运行调试)
 func GenerateToken(userID uint, username string, name string, roles []string) (string, error) {
-	secret := []byte(config.AppConfig.Auth.JWTSecret)
+	secret := config.AppConfig.Auth.JWTSecret
 	if len(secret) == 0 {
-		secret = []byte("ABCDEFGHIJKLMNOPQRSTVUWXYZ0987654321") // 缺省回退
+		secret = "ABCDEFGHIJKLMNOPQRSTVUWXYZ0987654321" // 缺省回退
 	}
-	expirationTime := time.Now().Add(6 * time.Hour)
-
-	claims := &Claims{
-		UserID:   userID,
-		Username: username,
-		Name:     name,
-		Roles:    roles,
-		RegisteredClaims: jwt.RegisteredClaims{
-			ExpiresAt: jwt.NewNumericDate(expirationTime),
-		},
-	}
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	return token.SignedString(secret)
+	return commonAuth.GenerateToken(userID, username, "", name, false, roles, secret, 6*time.Hour)
 }
 
-// ParseToken 解析并校验 JWT
 func ParseToken(tokenString string) (*Claims, error) {
-	secret := []byte(config.AppConfig.Auth.JWTSecret)
+	secret := config.AppConfig.Auth.JWTSecret
 	if len(secret) == 0 {
-		secret = []byte("ABCDEFGHIJKLMNOPQRSTVUWXYZ0987654321")
+		secret = "ABCDEFGHIJKLMNOPQRSTVUWXYZ0987654321"
 	}
-
-	claims := &Claims{}
-	token, err := jwt.ParseWithClaims(tokenString, claims, func(token *jwt.Token) (interface{}, error) {
-		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
-			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
-		}
-		return secret, nil
-	})
-	if err != nil {
-		return nil, err
-	}
-	if !token.Valid {
-		return nil, fmt.Errorf("invalid token")
-	}
-	return claims, nil
+	return commonAuth.ParseToken(tokenString, secret)
 }
 
 // FormatLetter 校验并格式化设备ID首字母（支持任意单个大写或小写英文字母 A-Z）
