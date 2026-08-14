@@ -15,7 +15,10 @@ type Config struct {
 		GinLog bool   `yaml:"gin_log"`
 	} `yaml:"server"`
 	Auth struct {
-		JWTSecret string `yaml:"jwt_secret"`
+		StandaloneMode       bool                      `yaml:"standalone_mode"`
+		JWTSecret            string                    `yaml:"jwt_secret"`
+		PasswordLoginEnabled bool                      `yaml:"password_login_enabled"`
+		OAuth2               commonModels.OAuth2Config `yaml:"oauth2"`
 	} `yaml:"auth"`
 	Database DatabaseConfig `yaml:"database"`
 }

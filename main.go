@@ -12,6 +12,7 @@ import (
 	"syscall"
 	"time"
 
+	commonAuth "code-common/backend/auth"
 	"code-pdm/config"
 	"code-pdm/handlers"
 	"code-pdm/models"
@@ -38,10 +39,10 @@ func corsMiddleware() gin.HandlerFunc {
 }
 
 func main() {
-	configPath := flag.String("config", "config.yaml", "Path to config file")
+	configPath := flag.String("config", "config.yaml", "Path to configuration file")
 	flag.Parse()
 
-	log.Println("[PDM] Starting Product Data Management server...")
+	log.Printf("[PDM] Starting Product Data Management (PDM) Service...\n")
 
 	// 1. 加载配置
 	if err := config.LoadConfig(*configPath); err != nil {
@@ -50,6 +51,11 @@ func main() {
 
 	// 2. 初始化数据库
 	models.InitDB()
+
+	// 确保至少存在默认管理员账号（用于独立部署模式）
+	if err := commonAuth.EnsureSeedAdmin(models.DB, "pdm_admin"); err != nil {
+		log.Printf("[PDM] Warning: Failed to ensure seed admin: %v", err)
+	}
 
 	// 3. 初始化 Gin
 	gin.SetMode(gin.ReleaseMode)
@@ -63,12 +69,16 @@ func main() {
 	// 4. 注册 API 路由
 	// 未保护路由
 	r.POST("/api/login", handlers.Login)
+	r.GET("/api/auth/config", handlers.GetAuthConfig)
+	r.GET("/api/oauth2/authorize", handlers.StartOAuth2Flow)
+	r.GET("/api/oauth2/callback", handlers.OAuth2Callback)
 
 	// 受保护路由 (普通用户只读，管理员读写)
 	protected := r.Group("/api")
 	protected.Use(handlers.AuthMiddleware())
 	{
 		protected.GET("/me", handlers.GetMe)
+		protected.PATCH("/password", handlers.UpdatePassword)
 
 		// 设备类型路由
 		protected.GET("/device-types", handlers.GetDeviceTypes)

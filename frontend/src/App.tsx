@@ -10,134 +10,9 @@ import { DatabaseOutlined, ApartmentOutlined, UserOutlined, LogoutOutlined, Lock
 import DeviceTypePage from './pages/DeviceType';
 import DevicePage from './pages/Device';
 import { apiFetch } from './api/client';
-import { useTheme, AUTH_TOKEN_KEY } from '@code/common';
+import { useTheme, AUTH_TOKEN_KEY, UnifiedLogin } from '@code/common';
 
 const { Header, Sider, Content } = Layout;
-
-// 独立运行时的简易登录面板
-function StandaloneLogin({ onLoginSuccess }: { onLoginSuccess: () => void }) {
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
-  const [loading, setLoading] = useState(false);
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!username || !password) {
-      message.warning('请输入用户名和密码');
-      return;
-    }
-    setLoading(true);
-    try {
-      const data = await apiFetch('/login', {
-        method: 'POST',
-        bodyData: { username, password },
-      });
-      localStorage.setItem('code_shield_token', data.token);
-      message.success('登录成功');
-      onLoginSuccess();
-    } catch (err: any) {
-      message.error(err.message || '登录失败，请检查账号密码');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  return (
-    <div style={{
-      display: 'flex',
-      minHeight: '100vh',
-      alignItems: 'center',
-      justifyContent: 'center',
-      background: '#0b1120',
-      fontFamily: "system-ui, sans-serif"
-    }}>
-      <div style={{
-        width: '380px',
-        padding: '30px',
-        background: '#1e293b',
-        borderRadius: '16px',
-        border: '1px solid #334155',
-        boxShadow: '0 10px 25px rgba(0,0,0,0.3)',
-      }}>
-        <div style={{ textAlign: 'center', marginBottom: '25px' }}>
-          <div style={{
-            width: '50px',
-            height: '50px',
-            margin: '0 auto 12px',
-            background: 'linear-gradient(135deg, #3b82f6 0%, #a855f7 100%)',
-            borderRadius: '12px',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            color: '#fff',
-            fontSize: '24px',
-            fontWeight: 'bold',
-            boxShadow: '0 4px 10px rgba(59, 130, 246, 0.3)'
-          }}>
-            P
-          </div>
-          <h2 style={{ margin: 0, color: '#f8fafc', fontSize: '20px', fontWeight: 600 }}>产品数据管理 (PDM)</h2>
-          <p style={{ margin: '6px 0 0', color: '#94a3b8', fontSize: '13px' }}>独立开发测试登录端</p>
-        </div>
-        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-          <div>
-            <label style={{ display: 'block', marginBottom: '6px', fontSize: '13px', color: '#94a3b8' }}>用户名</label>
-            <input
-              type="text"
-              placeholder="请输入用户名 (如 admin 或 user)"
-              value={username}
-              onChange={e => setUsername(e.target.value)}
-              style={{
-                width: '100%',
-                padding: '10px',
-                background: '#0f172a',
-                border: '1px solid #334155',
-                borderRadius: '8px',
-                color: '#f8fafc',
-                outline: 'none',
-                boxSizing: 'border-box'
-              }}
-            />
-          </div>
-          <div>
-            <label style={{ display: 'block', marginBottom: '6px', fontSize: '13px', color: '#94a3b8' }}>密码</label>
-            <input
-              type="password"
-              placeholder="请输入密码 (如 admin123 或 user123)"
-              value={password}
-              onChange={e => setPassword(e.target.value)}
-              style={{
-                width: '100%',
-                padding: '10px',
-                background: '#0f172a',
-                border: '1px solid #334155',
-                borderRadius: '8px',
-                color: '#f8fafc',
-                outline: 'none',
-                boxSizing: 'border-box'
-              }}
-            />
-          </div>
-          <Button
-            type="primary"
-            htmlType="submit"
-            loading={loading}
-            style={{
-              height: '42px',
-              borderRadius: '8px',
-              background: '#3b82f6',
-              border: 'none',
-              fontWeight: 600,
-              marginTop: '10px'
-            }}
-          >
-            登录系统
-          </Button>
-        </form>
-      </div>
-    </div>
-  );
-}
 
 export default function App({ isEmbedded = false }: { isEmbedded?: boolean }) {
   const location = useLocation();
@@ -169,7 +44,7 @@ export default function App({ isEmbedded = false }: { isEmbedded?: boolean }) {
   }, []);
 
   const handleLogout = () => {
-    localStorage.removeItem('code_shield_token');
+    localStorage.removeItem(AUTH_TOKEN_KEY);
     setUser(null);
     navigate('/login');
   };
@@ -208,7 +83,14 @@ export default function App({ isEmbedded = false }: { isEmbedded?: boolean }) {
 
   // 3. 独立运行没有登录
   if (!user && location.pathname !== '/login') {
-    return <StandaloneLogin onLoginSuccess={loadUser} />;
+    return (
+      <UnifiedLogin
+        systemName="Code-PDM 产品数据管理"
+        systemSubtitle="设备类型体系与设备标识生命周期管控"
+        systemDesc="统一管理设备规格型号定义、唯一标识前缀后缀生成、Excel 批量导入导出与权限审计"
+        onLoginSuccess={loadUser}
+      />
+    );
   }
 
   // 选中菜单项判断
