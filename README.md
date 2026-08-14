@@ -1,147 +1,142 @@
-# 产品数据管理系统 (code-pdm)
+# 产品数据管理系统 (code-pdm) 📦
 
-这是一个轻量级、安全、美观的产品数据管理微服务，主要包含**设备类型管理**与**设备ID档案管理**两个模块，作为子系统通过模块联邦（Module Federation）嵌入到 `code-bench` 开发者综合工作台中。
+`code-pdm` 是 CodeBench 微前端集成工作台下的**产品数据管理 (PDM)** 子系统。主要负责企业研发过程中的**设备类型管理**与**设备 ID 档案管理**，作为微前端 Remote 模块通过模块联邦（Module Federation）动态嵌入到 `code-bench` 宿主中运行，同时支持作为独立服务部署。
 
 ---
 
 ## 🛠️ 技术栈与工程结构
 
-*   **后端**：Go 1.25.0 + Gin + GORM + PostgreSQL
-*   **前端**：React 18 + Vite 5 + TypeScript + Ant Design 5
-*   **架构模式**：自适应独立运行模式 & 微前端联邦嵌入模式
+*   **后端**：Go 1.25+ Gin + GORM v2 + PostgreSQL (接入 `code-common/backend`)
+*   **前端**：React 18 + Vite 5 + TypeScript + Ant Design 5 (接入 `@code/common`)
+*   **架构模式**：自适应独立运行模式 & Vite 模块联邦微前端嵌入模式
 
-```
+```text
 code-pdm/
-  ├── config/            # 配置模块
-  ├── models/            # 数据库实体与 GORM 迁移
-  ├── handlers/          # API 控制层
-  │     ├── auth.go      # SSO 单点登录 & JWT 中间件
-  │     ├── device_type.go
-  │     ├── device.go
-  │     └── export.go    # Excel 数据双 Sheet 导出控制层
-  ├── utils/             # 后台 4 位全局唯一随机后缀生成算法
-  ├── frontend/          # React 远程发布前端工程
-  ├── Makefile           # 自动化构建指令集
-  └── README.md
+├── config/            # 配置解析 (支持 prefer_simple_protocol)
+├── models/            # 数据库实体与 GORM 迁移 (引用 code-common 模型)
+├── handlers/          # API 控制层
+│   ├── auth.go        # SSO 单点登录 & JWT 中间件
+│   ├── device_type.go # 设备型号增删改查
+│   ├── device.go      # 设备 ID 生成与档案管理
+│   └── export.go      # Excel 双 Sheet 导出控制器
+├── utils/             # 高并发 4 位全局唯一随机后缀生成算法
+├── frontend/          # React 前端工程 (样式严格限定于 .pdm-app 作用域)
+├── Makefile           # 自动化构建与测试脚本
+└── README.md
+```
+
+---
+
+## 🌟 核心功能与特性
+
+### 1. 设备型号与档案管理
+*   **设备型号管理**：支持设备型号的编码、名称、描述及状态管理。
+*   **设备 ID 档案与唯一后缀算法**：内置高并发安全的 4 位全局唯一随机后缀生成算法与数据库死锁碰撞重试机制，确保设备物理 ID 全局不重复。
+
+### 2. 企业级 Excel 双 Sheet 数据导出
+*   **双 Sheet 结构**：导出的 Excel 文件包含“设备型号”与“设备ID”两个独立 Sheet，便于数据离线归档与二次分析。
+*   **自适应中文列宽**：根据单元格文本内容引入中文字符加权算法动态计算物理宽度，排版精美防折行。
+*   **JWT 鉴权防护**：导出接口挂载统一 JWT 鉴权中间件，与 `code-bench` 网关共享安全状态。
+
+### 3. 微前端菜单与样式隔离
+*   **ModuleMenuConfig 菜单规范**：菜单配置遵循全平台微前端菜单规范，支持分组配置与 SVG 图标渲染。
+*   **CSS 作用域隔离**：前端所有 CSS 样式限定在 `.pdm-app` 容器内，接入 Portal CSS 变量继承全局主题，杜绝全局样式污染。
+
+### 4. 基于 Roles 的细粒度权限控制 (RBAC)
+*   全面收敛至基于 `Roles` 数组的角色权限体系，彻底停用历史 `is_admin` 物理列与逻辑判断：
+    *   `super_admin`：超级管理员，具备全系统所有数据的管理权限。
+    *   `pdm_admin`：PDM 子系统管理员，具备设备型号与设备 ID 的增删改操作权限。
+    *   普通用户：具备只读查看与数据导出权限。
+
+---
+
+## ⚙️ 系统配置 (config.yaml)
+
+```yaml
+server:
+  port: ":8085"
+  gin_log: false
+
+# ── 数据库配置 (共享 PostgreSQL) ──
+database:
+  host: "127.0.0.1"
+  port: 5432
+  user: "postgres"
+  password: "YOUR_POSTGRES_PASSWORD"
+  dbname: "code_shield"
+  sslmode: "disable"
+  prefer_simple_protocol: true   # 启用简单协议，防止预编译语句缓存异常
+
+# ── 认证配置 (接入 code-common) ──
+auth:
+  jwt_secret: "YOUR_SHARED_JWT_SECRET_KEY"
 ```
 
 ---
 
 ## 🚀 快速开始
 
-### 1. 本地配置
-复制配置文件模板：
+### 1. 一键全系统构建
 ```bash
-cp config.yaml.example config.yaml
+# 安装前端依赖、打包静态资源，并编译 Go 后端二进制
+make build
 ```
 
-### 2. 一键编译与运行
-使用 Makefile 命令一键编译前端资源并将其内嵌到 Go 二进制中：
+### 2. 运行服务
 ```bash
-# 全套打包构建
-make build
-
-# 启动内嵌整合包服务 (默认端口 :8085)
+# 启动 PDM 独立服务（默认监听 :8085 端口）
 make run
 ```
 
 ### 3. 开发模式调试
-*   **后端开发服务**：
+*   **后端开发**：
     ```bash
     go run main.go -config config.yaml
     ```
-*   **前端开发服务**：
+*   **前端开发**：
     ```bash
     cd frontend
     npm install
-    npm run dev  # 默认监听 5177 端口，API 自动反向代理到 8085 后端
+    npm run dev  # 监听 5177 端口，API 自动代理至 8085 后端
     ```
 
----
-
-## 🧪 单元测试
-
-我们在后台实现了高并发写操作下的后缀碰撞重试与数据库死锁消除。你可以通过以下命令验证并发安全性与全局唯一性：
+### 4. 运行单元测试
 ```bash
+# 验证高并发后缀生成安全性与唯一性
 go test -v ./models
-```
-
----
-
-## 📊 数据导出
-
-本系统内置了设备数据一键导出至 Excel (`.xlsx`) 的功能（基于 `excelize/v2`）：
-*   **双 Sheet 结构**：导出的 Excel 文件包含“设备型号”和“设备ID”两个独立的工作表，便于归档与二次分析。
-*   **自适应列宽**：根据单元格内容自动调整列宽，对中文字符引入加权算法计算物理宽度，防止内容挤压或换行。
-*   **精美排版**：表头自动加粗并填充灰色背景，行高与字体大小经过精心调优，直接满足企业级报表呈现需求。
-*   **安全认证**：数据导出 API 同样挂载在 JWT 鉴权中间件下，与 `code-bench` 网关共享认证状态，防范未授权的数据泄露风险。
-
-可以通过前端界面直接点击“导出 Excel”按钮，或者在已认证的会话中直接请求以下 API：
-```http
-GET /api/export/excel
 ```
 
 ---
 
 ## 🔗 集成到 Code-Bench 网关
 
-在 `code-bench` 的 `config.yaml` 配置文件下，在 `gateways` 列表里将 `pdm` 指向当前服务的端口：
+在 `code-bench` 的 `config.yaml` 中配置微服务反向代理：
 ```yaml
 gateways:
   shield: "http://127.0.0.1:8080"
-  proto: "http://127.0.0.1:8081"
   pipeline: "http://127.0.0.1:8082"
-  pdm: "http://127.0.0.1:8085"       # 新增 pdm 路由反向代理，指向 8085 端口
+  proto: "http://127.0.0.1:8083"
+  pdm: "http://127.0.0.1:8085"       # PDM 微服务代理端点
 ```
 
-主门户 `code-bench` 的前端会通过 `@originjs/vite-plugin-federation` 自动加载 `/pdm/assets/remoteEntry.js` 入口，并在 `/pdm/*` 路由下无缝嵌套呼现设备管理核心页面，同时共享 JWT 签名，达成 SSO 单点登录及管理员与普通用户的权限识别。
-
----
-
-## 🔒 权限架构 (RBAC Roles)
-
-`code-pdm` 全面收敛至基于 **Roles 角色权限体系**，完全废弃历史 `is_admin` 物理字段与硬编码判断。
-
-*   **角色类型**：系统识别两种核心角色：
-    *   `super_admin`：超级管理员，拥有全平台最高权限。
-    *   `pdm_admin`： PDM 子系统管理员，可进行设备型号与设备 ID 的增删改操作。
-    *   普通用户：仅可查看设备列表与导出数据，不得操作数据内容。
-*   **判断逻辑**：后端通过 `User.HasRole("pdm_admin")` 函数进行权限校验；`super_admin` 自动拥有所有子角色权限，无需单独判断。
-*   **共享签名**：通过与 `code-bench` 共享同一个 `jwt_secret`，实现单点登录与权限流通。
-
----
-
-## 🖥️ 部署说明
-
-### PostgreSQL 简单协议 (PreferSimpleProtocol)
-
-如果在部分 PostgreSQL 版本或连接池环境下遇到预编译语句缓存异常，可在 `config.yaml` 中启用简单协议防止此类问题：
-
-```yaml
-database:
-  host: "127.0.0.1"
-  port: 5432
-  user: "postgres"
-  password: "YOUR_POSTGRES_PASSWORD"
-  dbname: "code_pdm"
-  sslmode: "disable"
-  prefer_simple_protocol: true   # 启用简单协议，防止预编译语句缓存异常
-```
-
-### 前端样式隔离
-
-前端所有 CSS 样式均作用域限定在 `.pdm-app` 容器内，避免与主应用或其他微前端子应用的样式冲突。同时通过 Portal CSS 变量继承全局主题和色系，保证 UI 风格一致性。
+主门户 `code-bench` 前端会通过模块联邦自动加载 `/pdm/assets/remoteEntry.js`，在 `/pdm/*` 路由下无缝嵌套呈现设备管理核心页面并共享 JWT 登录会话。
 
 ---
 
 ## 🏷️ 版本历史
 
+### v0.3.0 (2026-08-14)
+*   **全量接入 `code-common`**：
+    - 后端下沉 `User`、`DatabaseConfig` 模型至 `code-common/backend`，统一鉴权与响应格式。
+    - 前端使用 `@code/common` 的 `createApiClient`、`useTheme` 与通用常量。
+*   **微前端菜单规范重构**：重构菜单配置为 `ModuleMenuConfig` 规范，组织分组数据并为菜单项配置 SVG 图标。
+*   **权限体系全面收敛至 Roles**：彻底清理 `is_admin` 物理列与逻辑判断，全量收敛至基于 `Roles` 数组字段的 RBAC 权限体系（`super_admin`, `pdm_admin`）。
+
 ### v0.2.0 (2026-07-31)
-*   **权限体系全面收敛至 Roles**：径量清理 `is_admin` 物理字段与硬编码判断，全量收敛至基于 `Roles` 数组字段的 RBAC 权限体系，防止权限逗层。
-*   **PostgreSQL PreferSimpleProtocol**：开启简单协议防止预编译语句缓存异常导致的数据库操作异常问题。
-*   **微前端样式作用域隔离**：前端全量 CSS 限定在 `.pdm-app` 容器，接入 Portal CSS 变量继承全局主题，解决样式覆盖与内漏问题。
-*   **`/api/me` 接口增强**：`GetMe` 接口额外返回 `roles` 字段，供前端审读当前用户角色并动态控制界面权限显示。
+*   **PostgreSQL PreferSimpleProtocol 支持**：开启简单协议防止预编译语句缓存异常导致的数据库操作异常。
+*   **微前端样式作用域隔离**：前端全量 CSS 限定在 `.pdm-app` 容器，接入 Portal CSS 变量继承全局主题。
+*   **`/api/me` 接口增强**：`GetMe` 接口返回 `roles` 数组字段，供前端动态控制操作权限。
 
 ### v0.1.0 (2026-06-08)
 *   **初始化新建微服务**：建立 code-pdm 产品数据管理核心功能，包括设备型号管理、设备 ID 档案管理、Excel 双 Sheet 导出、并发安全后缀生成算法等。
-*   **微前端集成**：基于 Vite Module Federation 实现微前端远程入口，以 `code-bench` 为宿主进行嵌套公发。
+*   **微前端集成**：基于 Vite Module Federation 实现微前端远程入口，嵌入 `code-bench` 宿主。
