@@ -6,6 +6,7 @@ import (
 	"testing"
 	"time"
 
+	"code-pdm/config"
 	"code-pdm/utils"
 
 	"gorm.io/gorm"
@@ -13,6 +14,7 @@ import (
 
 func TestDeviceIDConcurrencySafety(t *testing.T) {
 	// 1. 初始化临时测试配置
+	_ = config.LoadConfig("../config.yaml")
 	InitDB()
 
 	// 清空历史数据并创建一条设备类型

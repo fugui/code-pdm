@@ -1,13 +1,22 @@
 :root {
   --primary-color: var(--portal-primary-color, #3b82f6);
+  --primary-hover: var(--portal-primary-hover, #2563eb);
   --bg-color: var(--portal-bg-color, #0f172a);
   --card-bg: var(--portal-card-bg, #1e293b);
   --border-color: var(--portal-border-color, #334155);
   --text-color: var(--portal-text-color, #f8fafc);
   --text-secondary: var(--portal-text-secondary, #94a3b8);
+  --success-color: #10b981;
+  --danger-color: #ef4444;
+  --warning-color: #f59e0b;
 }
 
 :root.light-theme {
+  --portal-bg-color: #f8fafc;
+  --portal-card-bg: #ffffff;
+  --portal-border-color: #cbd5e1;
+  --portal-text-color: #0f172a;
+  --portal-text-secondary: #64748b;
   --bg-color: var(--portal-bg-color, #f8fafc);
   --card-bg: var(--portal-card-bg, #ffffff);
   --border-color: var(--portal-border-color, #cbd5e1);
@@ -15,113 +24,358 @@
   --text-secondary: var(--portal-text-secondary, #64748b);
 }
 
-.pdm-app {
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+body {
   margin: 0;
   padding: 0;
   background-color: var(--bg-color);
   color: var(--text-color);
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+.pdm-app {
+  background-color: var(--bg-color);
+  color: var(--text-color);
+  min-height: 100%;
   transition: background-color 0.3s, color 0.3s;
 }
 
-/* 兼容 Ant Design 亮/暗色系统的主体卡片过渡效果 */
-.pdm-app .ant-card {
-  background: var(--card-bg) !important;
-  border-color: var(--border-color) !important;
-  box-shadow: 0 4px 16px 0 rgba(0, 0, 0, 0.08) !important;
-  transition: background-color 0.3s, border-color 0.3s, box-shadow 0.3s !important;
+/* ===== 卡片容器 ===== */
+.pdm-card {
+  background: var(--card-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  padding: 1.5rem;
+  box-shadow: 0 4px 16px 0 rgba(0, 0, 0, 0.08);
+  transition: border-color 0.2s, box-shadow 0.2s;
 }
 
-:root.light-theme .pdm-app .ant-card {
-  box-shadow: 0 4px 16px 0 rgba(15, 23, 42, 0.04) !important;
+.pdm-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.25rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--border-color);
 }
 
-.pdm-app .ant-card-head {
-  border-bottom-color: var(--border-color) !important;
-  color: var(--text-color) !important;
-  transition: border-bottom-color 0.3s, color 0.3s !important;
+.pdm-card-title {
+  margin: 0;
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: var(--text-color);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
 }
 
-.pdm-app .ant-table-wrapper {
-  background: transparent !important;
+/* ===== 按钮系统 ===== */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  padding: 0.45rem 0.9rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  border-radius: 6px;
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  white-space: nowrap;
+  user-select: none;
 }
 
-/* 强制使表格容器有细腻的边界，产生浮动面板效果 */
-.pdm-app .ant-table-container {
-  border: 1px solid var(--border-color) !important;
-  border-radius: 8px !important;
-  overflow: hidden !important;
-  box-shadow: 0 2px 8px 0 rgba(0, 0, 0, 0.06) !important;
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
-:root.light-theme .pdm-app .ant-table-container {
-  box-shadow: 0 2px 8px 0 rgba(0, 0, 0, 0.02) !important;
+.btn-primary {
+  background: var(--primary-color);
+  color: #ffffff;
+  border-color: var(--primary-color);
+}
+.btn-primary:hover:not(:disabled) {
+  background: var(--primary-hover);
+  border-color: var(--primary-hover);
+  transform: translateY(-1px);
 }
 
-.pdm-app .ant-table {
-  background: transparent !important;
-  color: var(--text-color) !important;
+.btn-outline {
+  background: var(--bg-color);
+  border-color: var(--border-color);
+  color: var(--text-color);
+}
+.btn-outline:hover:not(:disabled) {
+  border-color: var(--primary-color);
+  color: var(--primary-color);
 }
 
-/* 表头背景：使用系统统一的二级底色，极大强化层次感 */
-.pdm-app .ant-table-thead > tr > th {
-  background: var(--bg-color) !important;
-  color: var(--text-secondary, #94a3b8) !important;
-  font-weight: 600 !important;
-  font-size: 0.8125rem !important;
-  border-bottom: 1px solid var(--border-color) !important;
+.btn-success {
+  background: var(--success-color);
+  color: #ffffff;
+  border-color: var(--success-color);
+}
+.btn-success:hover:not(:disabled) {
+  opacity: 0.9;
+  transform: translateY(-1px);
 }
 
-.pdm-app .ant-table-tbody > tr > td {
-  background: var(--card-bg) !important;
-  color: var(--text-color) !important;
-  border-bottom: 1px solid var(--border-color) !important;
-  transition: background-color 0.2s !important;
+.btn-danger {
+  background: rgba(239, 68, 68, 0.1);
+  color: var(--danger-color);
+  border-color: rgba(239, 68, 68, 0.25);
+}
+.btn-danger:hover:not(:disabled) {
+  background: var(--danger-color);
+  color: #ffffff;
 }
 
-/* 最后一行的单元格去除底边，显得更整洁 */
-.pdm-app .ant-table-tbody > tr:last-child > td {
-  border-bottom: none !important;
+.btn-text {
+  background: transparent;
+  border: none;
+  color: var(--primary-color);
+  padding: 0.25rem 0.5rem;
+}
+.btn-text:hover:not(:disabled) {
+  background: rgba(59, 130, 246, 0.08);
+}
+.btn-text-danger {
+  color: var(--danger-color);
+}
+.btn-text-danger:hover:not(:disabled) {
+  background: rgba(239, 68, 68, 0.08);
 }
 
-.pdm-app .ant-table-tbody > tr.ant-table-row:hover > td,
-.pdm-app .ant-table-tbody > tr > td.ant-table-cell-row-hover {
-  background: rgba(59, 130, 246, 0.06) !important;
+/* ===== 表单输入控件 ===== */
+.pdm-input,
+.pdm-select,
+.pdm-textarea {
+  width: 100%;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.875rem;
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  background-color: var(--bg-color);
+  color: var(--text-color);
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  box-sizing: border-box;
 }
 
-/* 输入框与选择器控件适配 */
-.pdm-app .ant-input,
-.pdm-app .ant-input-affix-wrapper,
-.pdm-app .ant-select-selector {
-  background-color: var(--bg-color) !important;
-  border-color: var(--border-color) !important;
-  color: var(--text-color) !important;
+.pdm-input:focus,
+.pdm-select:focus,
+.pdm-textarea:focus {
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
 }
 
-.pdm-app .ant-input::placeholder {
-  color: var(--text-secondary) !important;
+.pdm-input::placeholder,
+.pdm-textarea::placeholder {
+  color: var(--text-secondary);
 }
 
-.pdm-app .ant-pagination {
-  color: var(--text-secondary) !important;
+.pdm-input:disabled,
+.pdm-select:disabled,
+.pdm-textarea:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  background-color: var(--card-bg);
 }
 
-.pdm-app .ant-pagination-item {
-  background: transparent !important;
-  border-color: var(--border-color) !important;
+.pdm-form-group {
+  margin-bottom: 1.15rem;
 }
 
-.pdm-app .ant-pagination-item a {
-  color: var(--text-color) !important;
+.pdm-form-label {
+  display: block;
+  margin-bottom: 0.4rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-color);
 }
 
-.pdm-app .ant-pagination-item-active {
-  background: var(--primary-color) !important;
-  border-color: var(--primary-color) !important;
+.pdm-form-error {
+  margin-top: 0.3rem;
+  font-size: 0.75rem;
+  color: var(--danger-color);
 }
 
-.pdm-app .ant-pagination-item-active a {
-  color: #ffffff !important;
+/* ===== 表格体系 ===== */
+.pdm-table-wrapper {
+  overflow-x: auto;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  background: var(--card-bg);
+}
+
+.pdm-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+  font-size: 0.875rem;
+}
+
+.pdm-table th {
+  background: var(--bg-color);
+  color: var(--text-secondary);
+  font-weight: 600;
+  font-size: 0.775rem;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid var(--border-color);
+  user-select: none;
+  white-space: nowrap;
+}
+
+.pdm-table th.sortable {
+  cursor: pointer;
+  transition: color 0.15s;
+}
+.pdm-table th.sortable:hover {
+  color: var(--text-color);
+}
+
+.pdm-table td {
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid var(--border-color);
+  color: var(--text-color);
+  transition: background-color 0.15s;
+}
+
+.pdm-table tr:last-child td {
+  border-bottom: none;
+}
+
+.pdm-table tbody tr:hover td {
+  background-color: rgba(59, 130, 246, 0.04);
+}
+
+/* ===== 标签 Tag ===== */
+.pdm-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.15rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  border: 1px solid var(--border-color);
+  background: var(--bg-color);
+  color: var(--text-color);
+  white-space: nowrap;
+}
+
+.pdm-tag-blue {
+  background: rgba(59, 130, 246, 0.12);
+  color: var(--primary-color);
+  border-color: rgba(59, 130, 246, 0.25);
+}
+
+.pdm-tag-warning {
+  background: rgba(245, 158, 11, 0.12);
+  color: var(--warning-color);
+  border-color: rgba(245, 158, 11, 0.25);
+}
+
+.pdm-tag-success {
+  background: rgba(16, 185, 129, 0.12);
+  color: var(--success-color);
+  border-color: rgba(16, 185, 129, 0.25);
+}
+
+/* ===== 模态弹窗 Modal ===== */
+.pdm-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 1rem;
+  animation: pdm-fade-in 0.2s ease forwards;
+}
+
+.pdm-modal-dialog {
+  background: var(--card-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  width: 100%;
+  max-width: 520px;
+  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.3);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  animation: pdm-scale-up 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.pdm-modal-header {
+  padding: 1.25rem 1.5rem;
+  border-bottom: 1px solid var(--border-color);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: var(--card-bg);
+}
+
+.pdm-modal-title {
+  margin: 0;
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--text-color);
+}
+
+.pdm-modal-close {
+  background: transparent;
+  border: none;
+  color: var(--text-secondary);
+  font-size: 1.25rem;
+  cursor: pointer;
+  padding: 0.2rem 0.5rem;
+  border-radius: 4px;
+}
+.pdm-modal-close:hover {
+  background: var(--bg-color);
+  color: var(--text-color);
+}
+
+.pdm-modal-body {
+  padding: 1.5rem;
+  overflow-y: auto;
+  max-height: calc(85vh - 140px);
+}
+
+.pdm-modal-footer {
+  padding: 1rem 1.5rem;
+  border-top: 1px solid var(--border-color);
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  background: var(--card-bg);
+}
+
+/* 动效 */
+@keyframes pdm-fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes pdm-scale-up {
+  from {
+    opacity: 0;
+    transform: scale(0.96) translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
 }
