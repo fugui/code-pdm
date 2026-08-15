@@ -1,9 +1,10 @@
 :root {
   --primary-color: var(--portal-primary-color, #3b82f6);
-  --bg-color: var(--portal-bg-color, #0b1120);
-  --card-bg: var(--portal-card-bg, #0f172a);
-  --border-color: var(--portal-border-color, #1e293b);
+  --bg-color: var(--portal-bg-color, #0f172a);
+  --card-bg: var(--portal-card-bg, #1e293b);
+  --border-color: var(--portal-border-color, #334155);
   --text-color: var(--portal-text-color, #f8fafc);
+  --text-secondary: var(--portal-text-secondary, #94a3b8);
 }
 
 :root.light-theme {
@@ -11,6 +12,7 @@
   --card-bg: var(--portal-card-bg, #ffffff);
   --border-color: var(--portal-border-color, #cbd5e1);
   --text-color: var(--portal-text-color, #0f172a);
+  --text-secondary: var(--portal-text-secondary, #64748b);
 }
 
 .pdm-app {
@@ -28,14 +30,12 @@
 .pdm-app .ant-card {
   background: var(--card-bg) !important;
   border-color: var(--border-color) !important;
-  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.15), 
-              inset 0 1px 0 0 rgba(255, 255, 255, 0.05) !important;
+  box-shadow: 0 4px 16px 0 rgba(0, 0, 0, 0.08) !important;
   transition: background-color 0.3s, border-color 0.3s, box-shadow 0.3s !important;
 }
 
 :root.light-theme .pdm-app .ant-card {
-  box-shadow: 0 8px 24px 0 rgba(15, 23, 42, 0.04),
-              inset 0 1px 0 0 rgba(255, 255, 255, 0.8) !important;
+  box-shadow: 0 4px 16px 0 rgba(15, 23, 42, 0.04) !important;
 }
 
 .pdm-app .ant-card-head {
@@ -53,11 +53,11 @@
   border: 1px solid var(--border-color) !important;
   border-radius: 8px !important;
   overflow: hidden !important;
-  box-shadow: 0 4px 16px 0 rgba(0, 0, 0, 0.08) !important;
+  box-shadow: 0 2px 8px 0 rgba(0, 0, 0, 0.06) !important;
 }
 
 :root.light-theme .pdm-app .ant-table-container {
-  box-shadow: 0 4px 16px 0 rgba(0, 0, 0, 0.01) !important;
+  box-shadow: 0 2px 8px 0 rgba(0, 0, 0, 0.02) !important;
 }
 
 .pdm-app .ant-table {
@@ -65,11 +65,12 @@
   color: var(--text-color) !important;
 }
 
-/* 表头背景：带有一点点立面微弱渐变，极大强化立体观感 */
+/* 表头背景：使用系统统一的二级底色，极大强化层次感 */
 .pdm-app .ant-table-thead > tr > th {
-  background: linear-gradient(180deg, var(--bg-color) 0%, var(--card-bg) 100%) !important;
-  color: var(--text-color) !important;
+  background: var(--bg-color) !important;
+  color: var(--text-secondary, #94a3b8) !important;
   font-weight: 600 !important;
+  font-size: 0.8125rem !important;
   border-bottom: 1px solid var(--border-color) !important;
 }
 
@@ -87,14 +88,40 @@
 
 .pdm-app .ant-table-tbody > tr.ant-table-row:hover > td,
 .pdm-app .ant-table-tbody > tr > td.ant-table-cell-row-hover {
-  background: var(--bg-color) !important;
+  background: rgba(59, 130, 246, 0.06) !important;
+}
+
+/* 输入框与选择器控件适配 */
+.pdm-app .ant-input,
+.pdm-app .ant-input-affix-wrapper,
+.pdm-app .ant-select-selector {
+  background-color: var(--bg-color) !important;
+  border-color: var(--border-color) !important;
+  color: var(--text-color) !important;
+}
+
+.pdm-app .ant-input::placeholder {
+  color: var(--text-secondary) !important;
 }
 
 .pdm-app .ant-pagination {
+  color: var(--text-secondary) !important;
+}
+
+.pdm-app .ant-pagination-item {
+  background: transparent !important;
+  border-color: var(--border-color) !important;
+}
+
+.pdm-app .ant-pagination-item a {
   color: var(--text-color) !important;
 }
 
 .pdm-app .ant-pagination-item-active {
-  background: var(--bg-color) !important;
+  background: var(--primary-color) !important;
   border-color: var(--primary-color) !important;
+}
+
+.pdm-app .ant-pagination-item-active a {
+  color: #ffffff !important;
 }
