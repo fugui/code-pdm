@@ -4,7 +4,10 @@ import { FolderTree, HardDrive, User, LogOut } from 'lucide-react';
 import DeviceTypePage from './pages/DeviceType';
 import DevicePage from './pages/Device';
 import { apiFetch } from './api/client';
-import { AUTH_TOKEN_KEY, UnifiedLogin } from '@code/common';
+import { AUTH_TOKEN_KEY, UnifiedLogin, setupFetchInterceptor } from '@code/common';
+
+// Setup unified global fetch interceptor
+setupFetchInterceptor({ appPrefix: '/pdm' });
 
 export default function App({ isEmbedded = false }: { isEmbedded?: boolean }) {
   const location = useLocation();
