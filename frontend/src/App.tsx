@@ -90,12 +90,12 @@ export default function App({ isEmbedded = false }: { isEmbedded?: boolean }) {
           <div style={{
             width: '32px',
             height: '32px',
-            background: 'linear-gradient(135deg, #3b82f6 0%, #a855f7 100%)',
-            borderRadius: '8px',
+            background: 'linear-gradient(135deg, var(--color-primary) 0%, var(--color-info) 100%)',
+            borderRadius: 'var(--radius-md, 8px)',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            color: 'white',
+            color: 'var(--color-text-white, #ffffff)',
             fontWeight: 'bold',
             fontSize: '1rem'
           }}>

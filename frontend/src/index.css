@@ -1,28 +1,4 @@
-:root {
-  --primary-color: var(--portal-primary-color, #3b82f6);
-  --primary-hover: var(--portal-primary-hover, #2563eb);
-  --bg-color: var(--portal-bg-color, #0f172a);
-  --card-bg: var(--portal-card-bg, #1e293b);
-  --border-color: var(--portal-border-color, #334155);
-  --text-color: var(--portal-text-color, #f8fafc);
-  --text-secondary: var(--portal-text-secondary, #94a3b8);
-  --success-color: #10b981;
-  --danger-color: #ef4444;
-  --warning-color: #f59e0b;
-}
-
-:root.light-theme {
-  --portal-bg-color: #f8fafc;
-  --portal-card-bg: #ffffff;
-  --portal-border-color: #cbd5e1;
-  --portal-text-color: #0f172a;
-  --portal-text-secondary: #64748b;
-  --bg-color: var(--portal-bg-color, #f8fafc);
-  --card-bg: var(--portal-card-bg, #ffffff);
-  --border-color: var(--portal-border-color, #cbd5e1);
-  --text-color: var(--portal-text-color, #0f172a);
-  --text-secondary: var(--portal-text-secondary, #64748b);
-}
+@import '@code/common/src/styles/theme.css';
 
 *, *::before, *::after {
   box-sizing: border-box;
@@ -33,7 +9,7 @@ body {
   padding: 0;
   background-color: var(--bg-color);
   color: var(--text-color);
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  font-family: var(--font-family-sans);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
@@ -49,9 +25,9 @@ body {
 .pdm-card {
   background: var(--card-bg);
   border: 1px solid var(--border-color);
-  border-radius: 12px;
-  padding: 1.5rem;
-  box-shadow: 0 4px 16px 0 rgba(0, 0, 0, 0.08);
+  border-radius: var(--radius-lg, 12px);
+  padding: var(--space-lg, 1.5rem);
+  box-shadow: var(--shadow-md);
   transition: border-color 0.2s, box-shadow 0.2s;
 }
 
@@ -83,10 +59,10 @@ body {
   padding: 0.45rem 0.9rem;
   font-size: 0.875rem;
   font-weight: 500;
-  border-radius: 6px;
+  border-radius: var(--radius-sm, 6px);
   border: 1px solid transparent;
   cursor: pointer;
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: var(--transition-fast, all 0.2s cubic-bezier(0.4, 0, 0.2, 1));
   white-space: nowrap;
   user-select: none;
 }
@@ -98,7 +74,7 @@ body {
 
 .btn-primary {
   background: var(--primary-color);
-  color: #ffffff;
+  color: var(--color-text-white, #ffffff);
   border-color: var(--primary-color);
 }
 .btn-primary:hover:not(:disabled) {
@@ -119,7 +95,7 @@ body {
 
 .btn-success {
   background: var(--success-color);
-  color: #ffffff;
+  color: var(--color-text-white, #ffffff);
   border-color: var(--success-color);
 }
 .btn-success:hover:not(:disabled) {
@@ -128,13 +104,13 @@ body {
 }
 
 .btn-danger {
-  background: rgba(239, 68, 68, 0.1);
+  background: var(--color-danger-subtle);
   color: var(--danger-color);
-  border-color: rgba(239, 68, 68, 0.25);
+  border-color: var(--color-danger-border);
 }
 .btn-danger:hover:not(:disabled) {
   background: var(--danger-color);
-  color: #ffffff;
+  color: var(--color-text-white, #ffffff);
 }
 
 .btn-text {
@@ -144,13 +120,13 @@ body {
   padding: 0.25rem 0.5rem;
 }
 .btn-text:hover:not(:disabled) {
-  background: rgba(59, 130, 246, 0.08);
+  background: var(--color-primary-subtle);
 }
 .btn-text-danger {
   color: var(--danger-color);
 }
 .btn-text-danger:hover:not(:disabled) {
-  background: rgba(239, 68, 68, 0.08);
+  background: var(--color-danger-subtle);
 }
 
 /* ===== 表单输入控件 ===== */
@@ -161,7 +137,7 @@ body {
   padding: 0.5rem 0.75rem;
   font-size: 0.875rem;
   border: 1px solid var(--border-color);
-  border-radius: 6px;
+  border-radius: var(--radius-sm, 6px);
   background-color: var(--bg-color);
   color: var(--text-color);
   outline: none;
@@ -173,7 +149,7 @@ body {
 .pdm-select:focus,
 .pdm-textarea:focus {
   border-color: var(--primary-color);
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+  box-shadow: 0 0 0 3px var(--color-primary-subtle);
 }
 
 .pdm-input::placeholder,
@@ -211,7 +187,7 @@ body {
 .pdm-table-wrapper {
   overflow-x: auto;
   border: 1px solid var(--border-color);
-  border-radius: 8px;
+  border-radius: var(--radius-md, 8px);
   background: var(--card-bg);
 }
 
@@ -255,7 +231,7 @@ body {
 }
 
 .pdm-table tbody tr:hover td {
-  background-color: rgba(59, 130, 246, 0.04);
+  background-color: var(--color-primary-subtle);
 }
 
 /* ===== 标签 Tag ===== */
@@ -264,7 +240,7 @@ body {
   align-items: center;
   gap: 0.3rem;
   padding: 0.15rem 0.5rem;
-  border-radius: 4px;
+  border-radius: var(--radius-xs, 4px);
   font-size: 0.75rem;
   font-weight: 500;
   border: 1px solid var(--border-color);
@@ -274,28 +250,28 @@ body {
 }
 
 .pdm-tag-blue {
-  background: rgba(59, 130, 246, 0.12);
+  background: var(--color-primary-subtle);
   color: var(--primary-color);
-  border-color: rgba(59, 130, 246, 0.25);
+  border-color: var(--color-primary-border);
 }
 
 .pdm-tag-warning {
-  background: rgba(245, 158, 11, 0.12);
+  background: var(--color-warning-subtle);
   color: var(--warning-color);
-  border-color: rgba(245, 158, 11, 0.25);
+  border-color: var(--color-warning-border);
 }
 
 .pdm-tag-success {
-  background: rgba(16, 185, 129, 0.12);
+  background: var(--color-success-subtle);
   color: var(--success-color);
-  border-color: rgba(16, 185, 129, 0.25);
+  border-color: var(--color-success-border);
 }
 
 /* ===== 模态弹窗 Modal ===== */
 .pdm-modal-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.6);
+  background: var(--color-bg-overlay);
   backdrop-filter: blur(4px);
   display: flex;
   align-items: center;
@@ -308,10 +284,10 @@ body {
 .pdm-modal-dialog {
   background: var(--card-bg);
   border: 1px solid var(--border-color);
-  border-radius: 12px;
+  border-radius: var(--radius-lg, 12px);
   width: 100%;
   max-width: 520px;
-  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.3);
+  box-shadow: var(--shadow-lg);
   display: flex;
   flex-direction: column;
   overflow: hidden;
@@ -341,7 +317,7 @@ body {
   font-size: 1.25rem;
   cursor: pointer;
   padding: 0.2rem 0.5rem;
-  border-radius: 4px;
+  border-radius: var(--radius-xs, 4px);
 }
 .pdm-modal-close:hover {
   background: var(--bg-color);
