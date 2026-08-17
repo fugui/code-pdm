@@ -1,17 +1,14 @@
 package models
 
 import (
+	"code-common/backend/gormdb"
 	"log"
-	"os"
-	"time"
 
 	"code-pdm/config"
 
 	"golang.org/x/crypto/bcrypt"
 	"gorm.io/datatypes"
-	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
-	"gorm.io/gorm/logger"
 )
 
 var DB *gorm.DB
@@ -19,34 +16,12 @@ var DB *gorm.DB
 // InitDB 初始化数据库与自动迁移
 func InitDB() {
 	var err error
-	dbLogger := logger.New(
-		log.New(os.Stdout, "\r\n", log.LstdFlags),
-		logger.Config{
-			SlowThreshold:             time.Second,
-			LogLevel:                  logger.Warn,
-			IgnoreRecordNotFoundError: true,
-			Colorful:                  true,
-		},
-	)
 
-	dsn := config.AppConfig.Database.GetDSN()
-	log.Printf("Connecting to PostgreSQL database (%s)...\n", config.AppConfig.Database.DBName)
-	dialector := postgres.New(postgres.Config{
-		DSN:                  dsn,
-		PreferSimpleProtocol: true,
-	})
-
-	DB, err = gorm.Open(dialector, &gorm.Config{
-		Logger:                                   dbLogger,
-		DisableForeignKeyConstraintWhenMigrating: true,
+	DB, err = gormdb.Connect(config.AppConfig.Database, gormdb.Options{
+		ServiceName: "PDM-DB",
 	})
 	if err != nil {
 		log.Fatalf("failed to connect database: %v", err)
-	}
-
-	sqlDB, err := DB.DB()
-	if err == nil {
-		sqlDB.SetMaxOpenConns(20)
 	}
 
 	log.Println("AutoMigrating database schema...")
