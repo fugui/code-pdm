@@ -331,7 +331,7 @@ export default function DevicePage() {
   const paginatedData = sortedData.slice((page - 1) * pageSize, page * pageSize);
 
   return (
-    <div style={{ padding: '0.5rem 0' }}>
+    <div className="animate-fade-in" style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
       {/* Toast 提示 */}
       {toastMessage && (
         <div style={{
@@ -354,96 +354,96 @@ export default function DevicePage() {
         </div>
       )}
 
-      <div className="pdm-card">
-        {/* 卡片头部 */}
-        <div className="pdm-card-header">
-          <div>
-            <h3 className="pdm-card-title">
-              <HardDrive size={20} color="var(--primary-color)" />
-              设备 ID 档案管理 (Machine IDs)
-            </h3>
-            <p style={{ margin: '0.25rem 0 0 0', fontSize: '0.8rem', color: 'var(--text-secondary)' }}>
-              管控物理硬件唯一标识、前缀字母与 4 位排重随机数字生命周期
-            </p>
-          </div>
-          <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
-            <button
-              className="btn btn-primary"
-              disabled={!isAdmin}
-              onClick={handleCreate}
-              title={!isAdmin ? '只读模式：仅管理员支持录入' : undefined}
-            >
-              <Plus size={15} />
-              录入新设备
-            </button>
-            <button
-              className="btn btn-success"
-              onClick={handleExport}
-            >
-              <Download size={15} />
-              导出 Excel
-            </button>
-          </div>
+      {/* 顶部 Header 区 */}
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '1rem' }}>
+        <div>
+          <h2 style={{ fontSize: '1.5rem', fontWeight: 700, margin: '0 0 0.35rem 0', color: 'var(--text-color)', display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
+            <HardDrive size={24} color="var(--primary-color)" />
+            设备 ID 档案管理 (Machine IDs)
+          </h2>
+          <p style={{ margin: 0, fontSize: '0.875rem', color: 'var(--text-secondary)' }}>
+            管控物理硬件唯一标识、前缀字母与 4 位排重随机数字生命周期
+          </p>
         </div>
-
-        {/* 检索过滤器 */}
-        <div style={{ marginBottom: '1.25rem', display: 'flex', flexWrap: 'wrap', gap: '0.75rem', alignItems: 'center' }}>
-          <div style={{ position: 'relative', width: '200px' }}>
-            <input
-              type="text"
-              className="pdm-input"
-              placeholder="按设备 ID 搜索..."
-              value={searchID}
-              onChange={(e) => setSearchID(e.target.value)}
-              style={{ paddingLeft: '2rem' }}
-            />
-            <Search size={14} style={{ position: 'absolute', left: '0.65rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-secondary)' }} />
-          </div>
-
-          <div style={{ position: 'relative', width: '200px' }}>
-            <input
-              type="text"
-              className="pdm-input"
-              placeholder="按设备名称搜索..."
-              value={searchName}
-              onChange={(e) => setSearchName(e.target.value)}
-              style={{ paddingLeft: '2rem' }}
-            />
-            <Search size={14} style={{ position: 'absolute', left: '0.65rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-secondary)' }} />
-          </div>
-
-          <div style={{ width: '220px' }}>
-            <select
-              className="pdm-select"
-              value={searchTypeID || ''}
-              onChange={(e) => {
-                const val = e.target.value ? Number(e.target.value) : undefined;
-                setSearchTypeID(val);
-                updateParams({ page: 1 });
-              }}
-            >
-              <option value="">全部设备大类</option>
-              {deviceTypes.map(t => (
-                <option key={t.id} value={t.id}>{t.name} ({t.model})</option>
-              ))}
-            </select>
-          </div>
-
-          <button className="btn btn-outline" onClick={handleResetSearch}>
-            <RotateCcw size={14} />
-            重置
+        <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
+          <button
+            className="btn btn-primary"
+            disabled={!isAdmin}
+            onClick={handleCreate}
+            title={!isAdmin ? '只读模式：仅管理员支持录入' : undefined}
+          >
+            <Plus size={15} />
+            录入新设备
           </button>
+          <button
+            className="btn btn-success"
+            onClick={handleExport}
+          >
+            <Download size={15} />
+            导出 Excel
+          </button>
+        </div>
+      </div>
 
-          {!isAdmin && (
-            <span className="pdm-tag pdm-tag-warning" style={{ marginLeft: 'auto' }}>
-              <AlertTriangle size={12} />
-              只读模式：仅管理员支持录入及修改
-            </span>
-          )}
+      {/* 独立检索过滤器 Card */}
+      <div className="pdm-card" style={{ padding: '14px 20px', display: 'flex', flexWrap: 'wrap', gap: '0.75rem', alignItems: 'center' }}>
+        <div style={{ position: 'relative', width: '200px' }}>
+          <input
+            type="text"
+            className="pdm-input"
+            placeholder="按设备 ID 搜索..."
+            value={searchID}
+            onChange={(e) => setSearchID(e.target.value)}
+            style={{ paddingLeft: '2rem' }}
+          />
+          <Search size={14} style={{ position: 'absolute', left: '0.65rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-secondary)' }} />
         </div>
 
-        {/* 表格 */}
-        <div className="pdm-table-wrapper">
+        <div style={{ position: 'relative', width: '200px' }}>
+          <input
+            type="text"
+            className="pdm-input"
+            placeholder="按设备名称搜索..."
+            value={searchName}
+            onChange={(e) => setSearchName(e.target.value)}
+            style={{ paddingLeft: '2rem' }}
+          />
+          <Search size={14} style={{ position: 'absolute', left: '0.65rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-secondary)' }} />
+        </div>
+
+        <div style={{ width: '220px' }}>
+          <select
+            className="pdm-select"
+            value={searchTypeID || ''}
+            onChange={(e) => {
+              const val = e.target.value ? Number(e.target.value) : undefined;
+              setSearchTypeID(val);
+              updateParams({ page: 1 });
+            }}
+          >
+            <option value="">全部设备大类</option>
+            {deviceTypes.map(t => (
+              <option key={t.id} value={t.id}>{t.name} ({t.model})</option>
+            ))}
+          </select>
+        </div>
+
+        <button className="btn btn-outline" onClick={handleResetSearch}>
+          <RotateCcw size={14} />
+          重置
+        </button>
+
+        {!isAdmin && (
+          <span className="pdm-tag pdm-tag-warning" style={{ marginLeft: 'auto' }}>
+            <AlertTriangle size={12} />
+            只读模式：仅管理员支持录入及修改
+          </span>
+        )}
+      </div>
+
+      {/* 独立表格与分页 Card */}
+      <div className="pdm-card" style={{ padding: 0, overflow: 'hidden' }}>
+        <div className="pdm-table-wrapper" style={{ border: 'none', borderRadius: 0 }}>
           <table className="pdm-table">
             <thead>
               <tr>
@@ -463,16 +463,16 @@ export default function DevicePage() {
                     ) : <ArrowUpDown size={13} style={{ opacity: 0.4 }} />}
                   </div>
                 </th>
-                <th className="sortable" style={{ width: '200px' }} onClick={() => handleSort('name')}>
+                <th className="sortable" onClick={() => handleSort('name')}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
-                    设备名称
+                    设备实体名称
                     {sortField === 'name' ? (
                       sortOrder === 'asc' ? <ArrowUp size={13} /> : <ArrowDown size={13} />
                     ) : <ArrowUpDown size={13} style={{ opacity: 0.4 }} />}
                   </div>
                 </th>
                 <th>详细说明</th>
-                <th className="sortable" style={{ width: '140px' }} onClick={() => handleSort('date')}>
+                <th className="sortable" style={{ width: '130px' }} onClick={() => handleSort('date')}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
                     登记日期
                     {sortField === 'date' ? (
@@ -480,7 +480,7 @@ export default function DevicePage() {
                     ) : <ArrowUpDown size={13} style={{ opacity: 0.4 }} />}
                   </div>
                 </th>
-                <th style={{ width: '150px' }}>分配编码</th>
+                <th style={{ width: '160px' }}>生成规则详情</th>
                 <th style={{ width: '150px', textAlign: 'right' }}>操作</th>
               </tr>
             </thead>
@@ -488,34 +488,30 @@ export default function DevicePage() {
               {loading ? (
                 <tr>
                   <td colSpan={7} style={{ textAlign: 'center', padding: '3rem 1rem', color: 'var(--text-secondary)' }}>
-                    正在加载设备记录...
+                    正在加载设备档案数据...
                   </td>
                 </tr>
               ) : paginatedData.length === 0 ? (
                 <tr>
                   <td colSpan={7} style={{ textAlign: 'center', padding: '3rem 1rem', color: 'var(--text-secondary)' }}>
-                    未检索到任何设备记录
+                    未检索到设备档案数据
                   </td>
                 </tr>
               ) : (
                 paginatedData.map((item) => (
                   <tr key={item.id}>
                     <td>
-                      <strong style={{ color: 'var(--primary-color)', fontFamily: 'monospace', fontSize: '0.95rem' }}>
+                      <span className="pdm-tag pdm-tag-blue" style={{ fontFamily: 'monospace', fontWeight: 700, fontSize: '0.9rem' }}>
                         {item.device_id}
-                      </strong>
+                      </span>
                     </td>
                     <td>
-                      {item.device_type ? (
-                        <span>
-                          {item.device_type.name}{' '}
-                          <span className="pdm-tag pdm-tag-blue" style={{ marginLeft: '0.3rem' }}>
-                            {item.device_type.model}
-                          </span>
+                      <div style={{ display: 'flex', flexDirection: 'column' }}>
+                        <strong style={{ color: 'var(--text-color)' }}>{item.device_type?.name || '-'}</strong>
+                        <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>
+                          型号: {item.device_type?.model || '-'}
                         </span>
-                      ) : (
-                        <span style={{ color: 'var(--text-secondary)' }}>未知</span>
-                      )}
+                      </div>
                     </td>
                     <td>
                       <strong style={{ color: 'var(--text-color)' }}>{item.name}</strong>
@@ -524,7 +520,7 @@ export default function DevicePage() {
                       {item.description || <span style={{ fontStyle: 'italic', opacity: 0.6 }}>暂无描述</span>}
                     </td>
                     <td>
-                      <span className="pdm-tag pdm-tag-blue" style={{ fontFamily: 'monospace' }}>
+                      <span style={{ fontFamily: 'monospace' }}>
                         {item.date || '-'}
                       </span>
                     </td>
@@ -564,7 +560,7 @@ export default function DevicePage() {
 
         {/* 标准规范通用分页 */}
         {data.length > 0 && (
-          <div style={{ marginTop: '1rem' }}>
+          <div style={{ padding: '12px 16px', borderTop: '1px solid var(--border-color)' }}>
             <Pagination totalItems={data.length} />
           </div>
         )}

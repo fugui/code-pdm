@@ -21,6 +21,15 @@ body {
   transition: background-color 0.3s, color 0.3s;
 }
 
+@keyframes pdm-fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.pdm-app .animate-fade-in {
+  animation: pdm-fade-in 0.4s ease-out forwards;
+}
+
 /* ===== 卡片容器 ===== */
 .pdm-card {
   background: var(--card-bg);

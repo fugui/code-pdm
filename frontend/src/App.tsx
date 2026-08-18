@@ -46,7 +46,7 @@ export default function App({ isEmbedded = false }: { isEmbedded?: boolean }) {
   // 1. 如果是被 code-bench 宿主嵌套，直接进行路由映射，不需要自带的侧边栏与页眉
   if (isEmbedded) {
     return (
-      <div className="pdm-app">
+      <div className="pdm-app" style={{ padding: '32px 40px' }}>
         <Routes>
           <Route path="/device-type" element={<DeviceTypePage />} />
           <Route path="/device" element={<DevicePage />} />
@@ -173,7 +173,7 @@ export default function App({ isEmbedded = false }: { isEmbedded?: boolean }) {
           )}
         </header>
 
-        <main style={{ padding: '1.5rem', flex: 1 }}>
+        <main style={{ padding: '32px 40px', flex: 1, overflowY: 'auto' }}>
           <Routes>
             <Route path="/device-type" element={<DeviceTypePage />} />
             <Route path="/device" element={<DevicePage />} />

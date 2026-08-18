@@ -220,7 +220,7 @@ export default function DeviceTypePage() {
   const paginatedData = data.slice((page - 1) * pageSize, page * pageSize);
 
   return (
-    <div style={{ padding: '0.5rem 0' }}>
+    <div className="animate-fade-in" style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
       {/* Toast 提示 */}
       {toastMessage && (
         <div style={{
@@ -243,85 +243,85 @@ export default function DeviceTypePage() {
         </div>
       )}
 
-      <div className="pdm-card">
-        {/* 卡片头部 */}
-        <div className="pdm-card-header">
-          <div>
-            <h3 className="pdm-card-title">
-              <FolderTree size={20} color="var(--primary-color)" />
-              设备类型管理 (Machine Types)
-            </h3>
-            <p style={{ margin: '0.25rem 0 0 0', fontSize: '0.8rem', color: 'var(--text-secondary)' }}>
-              统一管控硬件产品规格型号定义、ID 字母前缀与大类属性
-            </p>
-          </div>
-          <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
-            <button
-              className="btn btn-primary"
-              disabled={!isAdmin}
-              onClick={handleCreate}
-              title={!isAdmin ? '只读模式：仅管理员支持创建' : undefined}
-            >
-              <Plus size={15} />
-              新建设备类型
-            </button>
-            <button
-              className="btn btn-success"
-              onClick={handleExport}
-            >
-              <Download size={15} />
-              导出 Excel
-            </button>
-          </div>
+      {/* 顶部 Header 区 */}
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '1rem' }}>
+        <div>
+          <h2 style={{ fontSize: '1.5rem', fontWeight: 700, margin: '0 0 0.35rem 0', color: 'var(--text-color)', display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
+            <FolderTree size={24} color="var(--primary-color)" />
+            设备类型管理 (Machine Types)
+          </h2>
+          <p style={{ margin: 0, fontSize: '0.875rem', color: 'var(--text-secondary)' }}>
+            统一管控硬件产品规格型号定义、ID 字母前缀与大类属性
+          </p>
+        </div>
+        <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
+          <button
+            className="btn btn-primary"
+            disabled={!isAdmin}
+            onClick={handleCreate}
+            title={!isAdmin ? '只读模式：仅管理员支持创建' : undefined}
+          >
+            <Plus size={15} />
+            新建设备类型
+          </button>
+          <button
+            className="btn btn-success"
+            onClick={handleExport}
+          >
+            <Download size={15} />
+            导出 Excel
+          </button>
+        </div>
+      </div>
+
+      {/* 顶部独立搜索栏 Card */}
+      <div className="pdm-card" style={{ padding: '14px 20px', display: 'flex', flexWrap: 'wrap', gap: '0.75rem', alignItems: 'center' }}>
+        <div style={{ position: 'relative', width: '220px' }}>
+          <input
+            type="text"
+            className="pdm-input"
+            placeholder="按设备型号搜索..."
+            value={searchModel}
+            onChange={(e) => setSearchModel(e.target.value)}
+            onKeyDown={(e) => e.key === 'Enter' && fetchData()}
+            style={{ paddingLeft: '2rem' }}
+          />
+          <Search size={14} style={{ position: 'absolute', left: '0.65rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-secondary)' }} />
         </div>
 
-        {/* 顶部搜索栏 */}
-        <div style={{ marginBottom: '1.25rem', display: 'flex', flexWrap: 'wrap', gap: '0.75rem', alignItems: 'center' }}>
-          <div style={{ position: 'relative', width: '220px' }}>
-            <input
-              type="text"
-              className="pdm-input"
-              placeholder="按设备型号搜索..."
-              value={searchModel}
-              onChange={(e) => setSearchModel(e.target.value)}
-              onKeyDown={(e) => e.key === 'Enter' && fetchData()}
-              style={{ paddingLeft: '2rem' }}
-            />
-            <Search size={14} style={{ position: 'absolute', left: '0.65rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-secondary)' }} />
-          </div>
-
-          <div style={{ position: 'relative', width: '220px' }}>
-            <input
-              type="text"
-              className="pdm-input"
-              placeholder="按大类名称搜索..."
-              value={searchName}
-              onChange={(e) => setSearchName(e.target.value)}
-              onKeyDown={(e) => e.key === 'Enter' && fetchData()}
-              style={{ paddingLeft: '2rem' }}
-            />
-            <Search size={14} style={{ position: 'absolute', left: '0.65rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-secondary)' }} />
-          </div>
-
-          <button className="btn btn-primary" onClick={fetchData}>
-            <Search size={14} />
-            查询
-          </button>
-          <button className="btn btn-outline" onClick={handleResetSearch}>
-            <RotateCcw size={14} />
-            重置
-          </button>
-
-          {!isAdmin && (
-            <span className="pdm-tag pdm-tag-warning" style={{ marginLeft: 'auto' }}>
-              <AlertTriangle size={12} />
-              只读模式：仅管理员支持编辑
-            </span>
-          )}
+        <div style={{ position: 'relative', width: '220px' }}>
+          <input
+            type="text"
+            className="pdm-input"
+            placeholder="按大类名称搜索..."
+            value={searchName}
+            onChange={(e) => setSearchName(e.target.value)}
+            onKeyDown={(e) => e.key === 'Enter' && fetchData()}
+            style={{ paddingLeft: '2rem' }}
+          />
+          <Search size={14} style={{ position: 'absolute', left: '0.65rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-secondary)' }} />
         </div>
 
-        {/* 数据展示表格 */}
-        <div className="pdm-table-wrapper">
+        <button className="btn btn-primary" onClick={fetchData}>
+          <Search size={14} />
+          查询
+        </button>
+        <button className="btn btn-outline" onClick={handleResetSearch}>
+          <RotateCcw size={14} />
+          重置
+        </button>
+
+        {!isAdmin && (
+          <span className="pdm-tag pdm-tag-warning" style={{ marginLeft: 'auto' }}>
+            <AlertTriangle size={12} />
+            只读模式：仅管理员支持编辑
+          </span>
+        )}
+      </div>
+
+      {/* 数据展示表格与分页 Card */}
+      <div className="pdm-card" style={{ padding: 0, overflow: 'hidden' }}>
+        <div className="pdm-table-wrapper" style={{ border: 'none', borderRadius: 0 }}>
           <table className="pdm-table">
             <thead>
               <tr>
@@ -397,7 +397,7 @@ export default function DeviceTypePage() {
 
         {/* 通用规范分页组件 */}
         {data.length > 0 && (
-          <div style={{ marginTop: '1rem' }}>
+          <div style={{ padding: '12px 16px', borderTop: '1px solid var(--border-color)' }}>
             <Pagination totalItems={data.length} />
           </div>
         )}
