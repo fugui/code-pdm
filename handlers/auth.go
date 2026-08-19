@@ -21,74 +21,6 @@ func init() {
 	pdmOAuth2States = commonAuth.NewStateStore()
 }
 
-// AuthMiddleware 身份验证中间件
-func AuthMiddleware() gin.HandlerFunc {
-	return func(c *gin.Context) {
-		authHeader := c.GetHeader("Authorization")
-		if authHeader == "" {
-			authHeader = c.Query("token")
-		}
-		if authHeader == "" {
-			c.JSON(http.StatusUnauthorized, gin.H{"error": "未携带 Authorization 凭证"})
-			c.Abort()
-			return
-		}
-
-		tokenString := authHeader
-		if len(authHeader) > 7 && strings.HasPrefix(authHeader, "Bearer ") {
-			tokenString = authHeader[7:]
-		}
-
-		claims, err := utils.ParseToken(tokenString)
-		if err != nil {
-			c.JSON(http.StatusUnauthorized, gin.H{"error": "身份凭证无效或已过期"})
-			c.Abort()
-			return
-		}
-
-		// 挂载会话元数据
-		c.Set("userID", claims.UserID)
-		c.Set("username", claims.Username)
-		c.Set("email", claims.Email)
-		c.Set("name", claims.Name)
-		c.Set("roles", claims.Roles)
-
-		c.Next()
-	}
-}
-
-// AdminMiddleware 管理员鉴权中间件
-func AdminMiddleware() gin.HandlerFunc {
-	return func(c *gin.Context) {
-		rolesVal, rolesExists := c.Get("roles")
-		hasRole := false
-		if rolesExists {
-			if roles, ok := rolesVal.([]string); ok {
-				for _, r := range roles {
-					if r == "super_admin" || r == "pdm_admin" {
-						hasRole = true
-						break
-					}
-				}
-			}
-		}
-
-		userVal, userExists := c.Get("user")
-		if userExists {
-			if user, ok := userVal.(models.User); ok && user.HasRole("pdm_admin") {
-				hasRole = true
-			}
-		}
-
-		if !hasRole {
-			c.JSON(http.StatusForbidden, gin.H{"error": "操作失败，仅限 PDM 管理员或超级管理员操作"})
-			c.Abort()
-			return
-		}
-		c.Next()
-	}
-}
-
 func GetAuthConfig(c *gin.Context) {
 	authCfg := config.AppConfig.Auth
 	passwordEnabled := authCfg.StandaloneMode || authCfg.PasswordLoginEnabled
@@ -205,15 +137,13 @@ func UpdatePassword(c *gin.Context) {
 
 // GetMe 获取当前登录用户信息
 func GetMe(c *gin.Context) {
-	username, _ := c.Get("username")
-	name, _ := c.Get("name")
-	rolesVal, _ := c.Get("roles")
-	roles, _ := rolesVal.([]string)
-
+	uc := commonAuth.GetUserContext(c)
 	c.JSON(http.StatusOK, gin.H{
-		"username": username,
-		"name":     name,
-		"roles":    roles,
+		"id":       uc.UserID,
+		"username": uc.Username,
+		"name":     uc.Name,
+		"email":    uc.Email,
+		"roles":    uc.Roles,
 	})
 }
 

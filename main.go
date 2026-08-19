@@ -52,7 +52,10 @@ func main() {
 
 			// 受保护路由
 			protected := r.Group("/api")
-			protected.Use(handlers.AuthMiddleware())
+			protected.Use(commonAuth.AuthMiddleware(commonAuth.AuthConfig{
+				JWTSecretGetter: func() string { return config.AppConfig.Auth.JWTSecret },
+				DB:              models.DB,
+			}))
 			{
 				protected.GET("/me", handlers.GetMe)
 				protected.PATCH("/password", handlers.UpdatePassword)
@@ -69,7 +72,7 @@ func main() {
 
 				// 管理员权限写操作
 				admin := protected.Group("/")
-				admin.Use(handlers.AdminMiddleware())
+				admin.Use(commonAuth.RequireAdmin(commonAuth.RolePdmAdmin))
 				{
 					admin.POST("/device-types", handlers.CreateDeviceType)
 					admin.PUT("/device-types/:id", handlers.UpdateDeviceType)
