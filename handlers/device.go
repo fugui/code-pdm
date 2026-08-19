@@ -1,6 +1,8 @@
 package handlers
 
 import (
+	commonAudit "code-common/backend/audit"
+	"fmt"
 	"net/http"
 	"strconv"
 	"strings"
@@ -148,6 +150,11 @@ func CreateDevice(c *gin.Context) {
 		return
 	}
 
+	commonAudit.SetAuditContext(c, "device", "create", models.AuditLevelP1,
+		fmt.Sprintf("创建了设备档案资产: %s (%s)", dev.Name, dev.DeviceID),
+		"device", fmt.Sprintf("%d", dev.ID), dev.Name,
+		nil, dev)
+
 	c.JSON(http.StatusCreated, dev)
 }
 
@@ -174,6 +181,8 @@ func UpdateDevice(c *gin.Context) {
 		c.JSON(http.StatusNotFound, gin.H{"error": "设备不存在"})
 		return
 	}
+
+	oldDev := dev
 
 	var req struct {
 		Name        string `json:"name" binding:"required"`
@@ -207,6 +216,11 @@ func UpdateDevice(c *gin.Context) {
 		return
 	}
 
+	commonAudit.SetAuditContext(c, "device", "update", models.AuditLevelP1,
+		fmt.Sprintf("修改了设备档案资产: %s (%s)", dev.Name, dev.DeviceID),
+		"device", fmt.Sprintf("%d", dev.ID), dev.Name,
+		oldDev, dev)
+
 	c.JSON(http.StatusOK, dev)
 }
 
@@ -228,6 +242,11 @@ func DeleteDevice(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "删除设备失败"})
 		return
 	}
+
+	commonAudit.SetAuditContext(c, "device", "delete", models.AuditLevelP1,
+		fmt.Sprintf("删除了设备档案资产: %s (%s)", dev.Name, dev.DeviceID),
+		"device", fmt.Sprintf("%d", dev.ID), dev.Name,
+		dev, nil)
 
 	c.JSON(http.StatusOK, gin.H{"message": "设备删除成功"})
 }

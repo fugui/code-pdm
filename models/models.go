@@ -6,6 +6,14 @@ import (
 )
 
 type User = commonModels.User
+type SysAuditLog = commonModels.SysAuditLog
+type AuditLevel = commonModels.AuditLevel
+
+const (
+	AuditLevelP0 = commonModels.AuditLevelP0
+	AuditLevelP1 = commonModels.AuditLevelP1
+	AuditLevelP2 = commonModels.AuditLevelP2
+)
 
 // DeviceType 设备类型实体
 type DeviceType struct {

@@ -1,6 +1,8 @@
 package handlers
 
 import (
+	commonAudit "code-common/backend/audit"
+	"fmt"
 	"net/http"
 	"regexp"
 	"strconv"
@@ -104,6 +106,11 @@ func CreateDeviceType(c *gin.Context) {
 		return
 	}
 
+	commonAudit.SetAuditContext(c, "device_type", "create", models.AuditLevelP1,
+		fmt.Sprintf("创建了设备大类规范: %s (%s)", dt.Name, dt.Model),
+		"device_type", fmt.Sprintf("%d", dt.ID), dt.Name,
+		nil, dt)
+
 	c.JSON(http.StatusCreated, dt)
 }
 
@@ -120,6 +127,8 @@ func UpdateDeviceType(c *gin.Context) {
 		c.JSON(http.StatusNotFound, gin.H{"error": "设备类型不存在"})
 		return
 	}
+
+	oldDT := dt
 
 	var req struct {
 		Model       string `json:"model" binding:"required"`
@@ -155,6 +164,11 @@ func UpdateDeviceType(c *gin.Context) {
 		return
 	}
 
+	commonAudit.SetAuditContext(c, "device_type", "update", models.AuditLevelP1,
+		fmt.Sprintf("修改了设备大类规范: %s (%s)", dt.Name, dt.Model),
+		"device_type", fmt.Sprintf("%d", dt.ID), dt.Name,
+		oldDT, dt)
+
 	c.JSON(http.StatusOK, dt)
 }
 
@@ -188,6 +202,11 @@ func DeleteDeviceType(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "删除设备类型失败"})
 		return
 	}
+
+	commonAudit.SetAuditContext(c, "device_type", "delete", models.AuditLevelP1,
+		fmt.Sprintf("删除了设备大类规范: %s (%s)", dt.Name, dt.Model),
+		"device_type", fmt.Sprintf("%d", dt.ID), dt.Name,
+		dt, nil)
 
 	c.JSON(http.StatusOK, gin.H{"message": "删除成功"})
 }

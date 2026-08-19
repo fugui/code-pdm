@@ -29,6 +29,7 @@ func InitDB() {
 		&User{},
 		&DeviceType{},
 		&Device{},
+		&SysAuditLog{},
 	)
 	if err != nil {
 		log.Fatalf("failed to migrate database: %v", err)

@@ -1,10 +1,12 @@
 package main
 
 import (
+	"context"
 	"embed"
 	"flag"
 	"log"
 
+	commonAudit "code-common/backend/audit"
 	commonAuth "code-common/backend/auth"
 	commonServer "code-common/backend/server"
 	"code-pdm/config"
@@ -31,6 +33,9 @@ func main() {
 	// 2. 初始化数据库
 	models.InitDB()
 
+	// 初始化系统全局操作审计引擎
+	commonAudit.Init(models.DB)
+
 	// 确保至少存在默认管理员账号（用于独立部署模式）
 	if err := commonAuth.EnsureSeedAdmin(models.DB, "pdm_admin"); err != nil {
 		log.Printf("[PDM] Warning: Failed to ensure seed admin: %v", err)
@@ -43,6 +48,12 @@ func main() {
 		Port:        config.AppConfig.Server.Port,
 		GinLog:      config.AppConfig.Server.GinLog,
 		FrontendFS:  &frontendFS,
+		CustomMiddlewares: []gin.HandlerFunc{
+			commonAudit.Middleware("pdm"),
+		},
+		OnShutdown: func(ctx context.Context) {
+			_ = commonAudit.Close(ctx)
+		},
 		RegisterRoutes: func(r *gin.Engine) {
 			// 未保护路由
 			r.POST("/api/login", handlers.Login)
