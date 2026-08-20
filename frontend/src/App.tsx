@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Routes, Route, Link, useLocation, useNavigate } from 'react-router-dom';
+import { Routes, Route, Link, Navigate, useLocation, useNavigate } from 'react-router-dom';
 import { FolderTree, HardDrive, User, LogOut } from 'lucide-react';
 import DeviceTypePage from './pages/DeviceType';
 import DevicePage from './pages/Device';
@@ -48,11 +48,14 @@ export default function App({ isEmbedded = false }: { isEmbedded?: boolean }) {
     return (
       <div className="pdm-app" style={{ padding: '32px 40px' }}>
         <Routes>
+          <Route path="/" element={<Navigate to="/pdm/device-type" replace />} />
+          <Route path="/pdm" element={<Navigate to="/pdm/device-type" replace />} />
+          <Route path="/pdm/" element={<Navigate to="/pdm/device-type" replace />} />
           <Route path="/device-type" element={<DeviceTypePage />} />
           <Route path="/device" element={<DevicePage />} />
           <Route path="/pdm/device-type" element={<DeviceTypePage />} />
           <Route path="/pdm/device" element={<DevicePage />} />
-          <Route path="*" element={<DeviceTypePage />} />
+          <Route path="*" element={<Navigate to="/pdm/device-type" replace />} />
         </Routes>
       </div>
     );
@@ -79,7 +82,7 @@ export default function App({ isEmbedded = false }: { isEmbedded?: boolean }) {
     );
   }
 
-  const isDeviceType = location.pathname.includes('/device-type');
+  const isDeviceType = location.pathname.includes('/device-type') || location.pathname === '/';
 
   // 4. 独立调试模式下的 Layout
   return (
@@ -175,9 +178,10 @@ export default function App({ isEmbedded = false }: { isEmbedded?: boolean }) {
 
         <main style={{ padding: '32px 40px', flex: 1, overflowY: 'auto' }}>
           <Routes>
+            <Route path="/" element={<Navigate to="/device-type" replace />} />
             <Route path="/device-type" element={<DeviceTypePage />} />
             <Route path="/device" element={<DevicePage />} />
-            <Route path="*" element={<DeviceTypePage />} />
+            <Route path="*" element={<Navigate to="/device-type" replace />} />
           </Routes>
         </main>
       </div>
