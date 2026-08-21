@@ -43,11 +43,14 @@ func main() {
 
 	// 3. 启动统一服务器
 	err := commonServer.Run(commonServer.Options{
-		ServiceName: "PDM",
-		Prefix:      "pdm",
-		Port:        config.AppConfig.Server.Port,
-		GinLog:      config.AppConfig.Server.GinLog,
-		FrontendFS:  &frontendFS,
+		ServiceName:  "PDM",
+		Prefix:       "pdm",
+		Port:         config.AppConfig.Server.Port,
+		GinLog:       config.AppConfig.Server.GinLog,
+		ReadTimeout:  config.AppConfig.Server.ReadTimeout,
+		WriteTimeout: config.AppConfig.Server.WriteTimeout,
+		IdleTimeout:  config.AppConfig.Server.IdleTimeout,
+		FrontendFS:   &frontendFS,
 		CustomMiddlewares: []gin.HandlerFunc{
 			commonAudit.Middleware("pdm"),
 		},

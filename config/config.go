@@ -3,6 +3,7 @@ package config
 import (
 	commonModels "code-common/backend/models"
 	"os"
+	"time"
 
 	"gopkg.in/yaml.v3"
 )
@@ -11,8 +12,11 @@ type DatabaseConfig = commonModels.DatabaseConfig
 
 type Config struct {
 	Server struct {
-		Port   string `yaml:"port"`
-		GinLog bool   `yaml:"gin_log"`
+		Port         string        `yaml:"port"`
+		GinLog       bool          `yaml:"gin_log"`
+		ReadTimeout  time.Duration `yaml:"read_timeout"`
+		WriteTimeout time.Duration `yaml:"write_timeout"`
+		IdleTimeout  time.Duration `yaml:"idle_timeout"`
 	} `yaml:"server"`
 	Auth struct {
 		StandaloneMode       bool                      `yaml:"standalone_mode"`

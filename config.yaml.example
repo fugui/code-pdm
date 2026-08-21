@@ -1,6 +1,9 @@
 server:
   port: ":8085"
   gin_log: true
+  read_timeout: 120s                    # 读取 HTTP 请求超时时间，默认 120s
+  write_timeout: 120s                   # 写入响应超时时间，默认 120s
+  idle_timeout: 180s                    # keep-alive 空闲连接超时时间，默认 180s
 
 auth:
   standalone_mode: false             # 是否以独立系统模式运行（false: 微前端模式，依赖主门户；true: 独立部署运行）
