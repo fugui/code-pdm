@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { Plus, Edit2, Trash2, Search, RotateCcw, Download, HardDrive, AlertTriangle, ArrowUpDown, ArrowUp, ArrowDown } from 'lucide-react';
-import { Pagination, usePagination } from '@code/common';
+import { Pagination, usePagination, Modal } from '@code/common';
 import { apiFetch } from '../api/client';
 
 interface DeviceType {
@@ -567,151 +567,140 @@ export default function DevicePage() {
       </div>
 
       {/* 设备录入/编辑 Modal 弹窗 */}
-      {isModalOpen && (
-        <div className="pdm-modal-overlay" onClick={() => !submitting && setIsModalOpen(false)}>
-          <div className="pdm-modal-dialog" onClick={(e) => e.stopPropagation()}>
-            <div className="pdm-modal-header">
-              <h3 className="pdm-modal-title">
-                {editingItem ? '修改设备信息' : '新设备建档录入'}
-              </h3>
-              <button
-                className="pdm-modal-close"
-                onClick={() => setIsModalOpen(false)}
-                disabled={submitting}
+      <Modal
+        open={isModalOpen}
+        onClose={() => !submitting && setIsModalOpen(false)}
+        title={editingItem ? '修改设备信息' : '新设备建档录入'}
+        width="md"
+        footer={null}
+      >
+        <form onSubmit={handleModalSubmit}>
+          <div className="pdm-modal-body" style={{ padding: 0 }}>
+            {/* 选择大类 */}
+            <div className="pdm-form-group">
+              <label className="pdm-form-label">所属设备类型 *</label>
+              <select
+                className="pdm-select"
+                value={formData.device_type_id}
+                onChange={(e) => handleDeviceTypeChange(Number(e.target.value))}
+                disabled={!!editingItem}
               >
-                ✕
-              </button>
+                <option value={0} disabled>选择关联的设备大类型</option>
+                {deviceTypes.map(t => (
+                  <option key={t.id} value={t.id}>{t.name} ({t.model})</option>
+                ))}
+              </select>
+              {formErrors.device_type_id && <div className="pdm-form-error">{formErrors.device_type_id}</div>}
             </div>
 
-            <form onSubmit={handleModalSubmit}>
-              <div className="pdm-modal-body">
-                {/* 选择大类 */}
-                <div className="pdm-form-group">
-                  <label className="pdm-form-label">所属设备类型 *</label>
-                  <select
-                    className="pdm-select"
-                    value={formData.device_type_id}
-                    onChange={(e) => handleDeviceTypeChange(Number(e.target.value))}
-                    disabled={!!editingItem}
-                  >
-                    <option value={0} disabled>选择关联的设备大类型</option>
-                    {deviceTypes.map(t => (
-                      <option key={t.id} value={t.id}>{t.name} ({t.model})</option>
-                    ))}
-                  </select>
-                  {formErrors.device_type_id && <div className="pdm-form-error">{formErrors.device_type_id}</div>}
-                </div>
-
-                {/* 新建模式显示前缀与后缀 */}
-                {!editingItem ? (
-                  <div className="pdm-form-group">
-                    <label className="pdm-form-label">
-                      设备 ID (字母前缀与4位随机数字后缀) *
-                      <span style={{ fontSize: '0.75rem', fontWeight: 400, color: 'var(--text-secondary)', marginLeft: '0.5rem' }}>
-                        选择大类自动带出前缀，支持随机分配唯一4位后缀
-                      </span>
-                    </label>
-                    <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
-                      <input
-                        type="text"
-                        className="pdm-input"
-                        placeholder="前缀"
-                        value={formData.letter}
-                        readOnly
-                        style={{ width: '80px', textAlign: 'center', fontWeight: 700, color: 'var(--primary-color)' }}
-                      />
-                      <span style={{ color: 'var(--text-secondary)', fontWeight: 'bold' }}>-</span>
-                      <input
-                        type="text"
-                        className="pdm-input"
-                        placeholder="4位数字"
-                        maxLength={4}
-                        value={formData.number}
-                        onChange={(e) => setFormData({ ...formData, number: e.target.value })}
-                        style={{ flex: 1, textAlign: 'center', fontWeight: 700, letterSpacing: '2px', color: 'var(--primary-color)' }}
-                      />
-                      <button
-                        type="button"
-                        className="btn btn-outline"
-                        onClick={triggerGenerateSuffix}
-                        disabled={generatingSuffix}
-                        style={{ borderColor: 'var(--primary-color)', color: 'var(--primary-color)' }}
-                      >
-                        {generatingSuffix ? '分配中...' : '随机生成'}
-                      </button>
-                    </div>
-                    {formErrors.letter && <div className="pdm-form-error">{formErrors.letter}</div>}
-                    {formErrors.number && <div className="pdm-form-error">{formErrors.number}</div>}
-                  </div>
-                ) : (
-                  <div className="pdm-form-group">
-                    <label className="pdm-form-label">当前物理设备 ID (只读锁定)</label>
-                    <input
-                      type="text"
-                      className="pdm-input"
-                      value={editingItem.device_id}
-                      disabled
-                      style={{ fontWeight: 700, color: 'var(--primary-color)' }}
-                    />
-                  </div>
-                )}
-
-                <div className="pdm-form-group">
-                  <label className="pdm-form-label">设备实体名称 *</label>
+            {/* 新建模式显示前缀与后缀 */}
+            {!editingItem ? (
+              <div className="pdm-form-group">
+                <label className="pdm-form-label">
+                  设备 ID (字母前缀与4位随机数字后缀) *
+                  <span style={{ fontSize: '0.75rem', fontWeight: 400, color: 'var(--text-secondary)', marginLeft: '0.5rem' }}>
+                    选择大类自动带出前缀，支持随机分配唯一4位后缀
+                  </span>
+                </label>
+                <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
                   <input
                     type="text"
                     className="pdm-input"
-                    placeholder="输入特定的物理设备标志名，例如: 1A 或 1B"
-                    value={formData.name}
-                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                    placeholder="前缀"
+                    value={formData.letter}
+                    readOnly
+                    style={{ width: '80px', textAlign: 'center', fontWeight: 700, color: 'var(--primary-color)' }}
                   />
-                  {formErrors.name && <div className="pdm-form-error">{formErrors.name}</div>}
-                </div>
-
-                <div className="pdm-form-group">
-                  <label className="pdm-form-label">登记日期 *</label>
+                  <span style={{ color: 'var(--text-secondary)', fontWeight: 'bold' }}>-</span>
                   <input
-                    type="date"
+                    type="text"
                     className="pdm-input"
-                    value={formData.date}
-                    onChange={(e) => setFormData({ ...formData, date: e.target.value })}
+                    placeholder="4位数字"
+                    maxLength={4}
+                    value={formData.number}
+                    onChange={(e) => setFormData({ ...formData, number: e.target.value })}
+                    style={{ flex: 1, textAlign: 'center', fontWeight: 700, letterSpacing: '2px', color: 'var(--primary-color)' }}
                   />
-                  {formErrors.date && <div className="pdm-form-error">{formErrors.date}</div>}
+                  <button
+                    type="button"
+                    className="btn btn-outline"
+                    onClick={triggerGenerateSuffix}
+                    disabled={generatingSuffix}
+                    style={{ borderColor: 'var(--primary-color)', color: 'var(--primary-color)' }}
+                  >
+                    {generatingSuffix ? '分配中...' : '随机生成'}
+                  </button>
                 </div>
-
-                <div className="pdm-form-group" style={{ marginBottom: 0 }}>
-                  <label className="pdm-form-label">详细备注/说明</label>
-                  <textarea
-                    rows={4}
-                    className="pdm-textarea"
-                    placeholder="记录该设备的物理位置、IP配置、部署状态及使用人员等备注信息..."
-                    value={formData.description}
-                    onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                  />
-                </div>
+                {formErrors.letter && <div className="pdm-form-error">{formErrors.letter}</div>}
+                {formErrors.number && <div className="pdm-form-error">{formErrors.number}</div>}
               </div>
-
-              <div className="pdm-modal-footer">
-                <button
-                  type="button"
-                  className="btn btn-outline"
-                  onClick={() => setIsModalOpen(false)}
-                  disabled={submitting}
-                >
-                  取消
-                </button>
-                <button
-                  type="submit"
-                  className="btn btn-primary"
-                  disabled={submitting}
-                >
-                  {submitting ? '正在提交...' : '确认保存'}
-                </button>
+            ) : (
+              <div className="pdm-form-group">
+                <label className="pdm-form-label">当前物理设备 ID (只读锁定)</label>
+                <input
+                  type="text"
+                  className="pdm-input"
+                  value={editingItem.device_id}
+                  disabled
+                  style={{ fontWeight: 700, color: 'var(--primary-color)' }}
+                />
               </div>
-            </form>
+            )}
+
+            <div className="pdm-form-group">
+              <label className="pdm-form-label">设备实体名称 *</label>
+              <input
+                type="text"
+                className="pdm-input"
+                placeholder="输入特定的物理设备标志名，例如: 1A 或 1B"
+                value={formData.name}
+                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+              />
+              {formErrors.name && <div className="pdm-form-error">{formErrors.name}</div>}
+            </div>
+
+            <div className="pdm-form-group">
+              <label className="pdm-form-label">登记日期 *</label>
+              <input
+                type="date"
+                className="pdm-input"
+                value={formData.date}
+                onChange={(e) => setFormData({ ...formData, date: e.target.value })}
+              />
+              {formErrors.date && <div className="pdm-form-error">{formErrors.date}</div>}
+            </div>
+
+            <div className="pdm-form-group" style={{ marginBottom: 0 }}>
+              <label className="pdm-form-label">详细备注/说明</label>
+              <textarea
+                rows={4}
+                className="pdm-textarea"
+                placeholder="记录该设备的物理位置、IP配置、部署状态及使用人员等备注信息..."
+                value={formData.description}
+                onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+              />
+            </div>
           </div>
-        </div>
-      )}
+
+          <div className="pdm-modal-footer" style={{ marginTop: '1.25rem' }}>
+            <button
+              type="button"
+              className="btn btn-outline"
+              onClick={() => setIsModalOpen(false)}
+              disabled={submitting}
+            >
+              取消
+            </button>
+            <button
+              type="submit"
+              className="btn btn-primary"
+              disabled={submitting}
+            >
+              {submitting ? '正在提交...' : '确认保存'}
+            </button>
+          </div>
+        </form>
+      </Modal>
     </div>
   );
 }

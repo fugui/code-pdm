@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { Plus, Edit2, Trash2, Search, RotateCcw, Download, Info, AlertTriangle, FolderTree } from 'lucide-react';
-import { Pagination, usePagination } from '@code/common';
+import { Pagination, usePagination, Modal } from '@code/common';
 import { apiFetch } from '../api/client';
 
 const modelRegex = /^[a-zA-Z]{1,2}:?[0-9]+$/;
@@ -404,105 +404,94 @@ export default function DeviceTypePage() {
       </div>
 
       {/* 新建/编辑 Modal 弹窗 */}
-      {isModalOpen && (
-        <div className="pdm-modal-overlay" onClick={() => !submitting && setIsModalOpen(false)}>
-          <div className="pdm-modal-dialog" onClick={(e) => e.stopPropagation()}>
-            <div className="pdm-modal-header">
-              <h3 className="pdm-modal-title">
-                {editingItem ? '编辑设备类型' : '创建新设备类型'}
-              </h3>
-              <button
-                className="pdm-modal-close"
-                onClick={() => setIsModalOpen(false)}
-                disabled={submitting}
-              >
-                ✕
-              </button>
+      <Modal
+        open={isModalOpen}
+        onClose={() => !submitting && setIsModalOpen(false)}
+        title={editingItem ? '编辑设备类型' : '创建新设备类型'}
+        width="md"
+        footer={null}
+      >
+        <form onSubmit={handleModalSubmit}>
+          <div className="pdm-modal-body" style={{ padding: 0 }}>
+            <div className="pdm-form-group">
+              <label className="pdm-form-label">
+                设备型号 (Machine Type) *
+                <span style={{ fontSize: '0.75rem', fontWeight: 400, color: 'var(--text-secondary)', marginLeft: '0.5rem' }}>
+                  1-2位字母+数字，可带冒号，如 E10、AB:99
+                </span>
+              </label>
+              <input
+                type="text"
+                className="pdm-input"
+                placeholder="例如: E10 或 AB:99"
+                value={formData.model}
+                onChange={(e) => setFormData({ ...formData, model: e.target.value })}
+              />
+              {formErrors.model && <div className="pdm-form-error">{formErrors.model}</div>}
             </div>
 
-            <form onSubmit={handleModalSubmit}>
-              <div className="pdm-modal-body">
-                <div className="pdm-form-group">
-                  <label className="pdm-form-label">
-                    设备型号 (Machine Type) *
-                    <span style={{ fontSize: '0.75rem', fontWeight: 400, color: 'var(--text-secondary)', marginLeft: '0.5rem' }}>
-                      1-2位字母+数字，可带冒号，如 E10、AB:99
-                    </span>
-                  </label>
-                  <input
-                    type="text"
-                    className="pdm-input"
-                    placeholder="例如: E10 或 AB:99"
-                    value={formData.model}
-                    onChange={(e) => setFormData({ ...formData, model: e.target.value })}
-                  />
-                  {formErrors.model && <div className="pdm-form-error">{formErrors.model}</div>}
-                </div>
+            <div className="pdm-form-group">
+              <label className="pdm-form-label">
+                设备ID首字母 (Prefix Letter) *
+              </label>
+              <input
+                type="text"
+                className="pdm-input"
+                placeholder="单个英文字母，如: E, L, T"
+                maxLength={1}
+                value={formData.letter}
+                onChange={(e) => setFormData({ ...formData, letter: e.target.value.toUpperCase() })}
+                disabled={!!editingItem}
+              />
+              {formErrors.letter && <div className="pdm-form-error">{formErrors.letter}</div>}
+            </div>
 
-                <div className="pdm-form-group">
-                  <label className="pdm-form-label">
-                    设备ID首字母 (Prefix Letter) *
-                  </label>
-                  <input
-                    type="text"
-                    className="pdm-input"
-                    placeholder="单个英文字母，如: E, L, T"
-                    maxLength={1}
-                    value={formData.letter}
-                    onChange={(e) => setFormData({ ...formData, letter: e.target.value.toUpperCase() })}
-                    disabled={!!editingItem}
-                  />
-                  {formErrors.letter && <div className="pdm-form-error">{formErrors.letter}</div>}
-                </div>
+            <div className="pdm-form-group">
+              <label className="pdm-form-label">
+                设备大类名称 (Type Name) *
+              </label>
+              <input
+                type="text"
+                className="pdm-input"
+                placeholder="输入类型描述名称，如：边缘核心计算模块"
+                value={formData.name}
+                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                disabled={!!editingItem}
+              />
+              {formErrors.name && <div className="pdm-form-error">{formErrors.name}</div>}
+            </div>
 
-                <div className="pdm-form-group">
-                  <label className="pdm-form-label">
-                    设备大类名称 (Type Name) *
-                  </label>
-                  <input
-                    type="text"
-                    className="pdm-input"
-                    placeholder="输入类型描述名称，如：边缘核心计算模块"
-                    value={formData.name}
-                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                    disabled={!!editingItem}
-                  />
-                  {formErrors.name && <div className="pdm-form-error">{formErrors.name}</div>}
-                </div>
-
-                <div className="pdm-form-group" style={{ marginBottom: 0 }}>
-                  <label className="pdm-form-label">详细说明</label>
-                  <textarea
-                    rows={4}
-                    className="pdm-textarea"
-                    placeholder="描述此大类设备的技术规格、适用场景等说明内容..."
-                    value={formData.description}
-                    onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                  />
-                </div>
-              </div>
-
-              <div className="pdm-modal-footer">
-                <button
-                  type="button"
-                  className="btn btn-outline"
-                  onClick={() => setIsModalOpen(false)}
-                  disabled={submitting}
-                >
-                  取消
-                </button>
-                <button
-                  type="submit"
-                  className="btn btn-primary"
-                  disabled={submitting}
-                >
-                  {submitting ? '正在提交...' : '确认保存'}
-                </button>
-              </div>
-            </form>
+            <div className="pdm-form-group" style={{ marginBottom: 0 }}>
+              <label className="pdm-form-label">详细说明</label>
+              <textarea
+                rows={4}
+                className="pdm-textarea"
+                placeholder="描述此大类设备的技术规格、适用场景等说明内容..."
+                value={formData.description}
+                onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+              />
+            </div>
           </div>
-        </div>
-      )}
+
+          <div className="pdm-modal-footer" style={{ marginTop: '1.25rem' }}>
+            <button
+              type="button"
+              className="btn btn-outline"
+              onClick={() => setIsModalOpen(false)}
+              disabled={submitting}
+            >
+              取消
+            </button>
+            <button
+              type="submit"
+              className="btn btn-primary"
+              disabled={submitting}
+            >
+              {submitting ? '正在提交...' : '确认保存'}
+            </button>
+          </div>
+        </form>
+      </Modal>
     </div>
   );
 }
