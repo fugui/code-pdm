@@ -276,62 +276,7 @@ body {
   border-color: var(--color-success-border);
 }
 
-/* ===== 模态弹窗 Modal ===== */
-.pdm-modal-overlay {
-  position: fixed;
-  inset: 0;
-  background: var(--color-bg-overlay);
-  backdrop-filter: blur(4px);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 1000;
-  padding: 1rem;
-  animation: pdm-fade-in 0.2s ease forwards;
-}
-
-.pdm-modal-dialog {
-  background: var(--card-bg);
-  border: 1px solid var(--border-color);
-  border-radius: var(--radius-lg, 12px);
-  width: 100%;
-  max-width: 520px;
-  box-shadow: var(--shadow-lg);
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-  animation: pdm-scale-up 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-}
-
-.pdm-modal-header {
-  padding: 1.25rem 1.5rem;
-  border-bottom: 1px solid var(--border-color);
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  background: var(--card-bg);
-}
-
-.pdm-modal-title {
-  margin: 0;
-  font-size: 1.1rem;
-  font-weight: 700;
-  color: var(--text-color);
-}
-
-.pdm-modal-close {
-  background: transparent;
-  border: none;
-  color: var(--text-secondary);
-  font-size: 1.25rem;
-  cursor: pointer;
-  padding: 0.2rem 0.5rem;
-  border-radius: var(--radius-xs, 4px);
-}
-.pdm-modal-close:hover {
-  background: var(--bg-color);
-  color: var(--text-color);
-}
+/* ===== 模态弹窗表单内容体与页脚 ===== */
 
 .pdm-modal-body {
   padding: 1.5rem;
