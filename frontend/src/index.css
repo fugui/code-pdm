@@ -59,80 +59,23 @@ body {
   gap: 0.5rem;
 }
 
-/* ===== 按钮系统 ===== */
-.btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.4rem;
-  padding: 0.45rem 0.9rem;
-  font-size: 0.875rem;
-  font-weight: 500;
-  border-radius: var(--radius-sm, 6px);
-  border: 1px solid transparent;
-  cursor: pointer;
-  transition: var(--transition-fast, all 0.2s cubic-bezier(0.4, 0, 0.2, 1));
-  white-space: nowrap;
-  user-select: none;
-}
-
-.btn:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-.btn-primary {
-  background: var(--primary-color);
-  color: var(--color-text-white, #ffffff);
-  border-color: var(--primary-color);
-}
-.btn-primary:hover:not(:disabled) {
-  background: var(--primary-hover);
-  border-color: var(--primary-hover);
-  transform: translateY(-1px);
-}
-
-.btn-outline {
-  background: var(--bg-color);
-  border-color: var(--border-color);
-  color: var(--text-color);
-}
-.btn-outline:hover:not(:disabled) {
-  border-color: var(--primary-color);
-  color: var(--primary-color);
-}
-
+/* ===== PDM 专有按钮扩展变体 (基础按钮继承自 theme.css) ===== */
 .btn-success {
-  background: var(--success-color);
-  color: var(--color-text-white, #ffffff);
-  border-color: var(--success-color);
+  background: var(--color-success);
+  color: var(--color-text-white);
+  border-color: var(--color-success);
 }
 .btn-success:hover:not(:disabled) {
-  opacity: 0.9;
+  background: var(--color-success-hover);
+  border-color: var(--color-success-hover);
   transform: translateY(-1px);
 }
 
-.btn-danger {
-  background: var(--color-danger-subtle);
-  color: var(--danger-color);
-  border-color: var(--color-danger-border);
-}
-.btn-danger:hover:not(:disabled) {
-  background: var(--danger-color);
-  color: var(--color-text-white, #ffffff);
-}
-
-.btn-text {
+.btn-text-danger {
   background: transparent;
   border: none;
-  color: var(--primary-color);
+  color: var(--color-danger);
   padding: 0.25rem 0.5rem;
-}
-.btn-text:hover:not(:disabled) {
-  background: var(--color-primary-subtle);
-}
-.btn-text-danger {
-  color: var(--danger-color);
 }
 .btn-text-danger:hover:not(:disabled) {
   background: var(--color-danger-subtle);
