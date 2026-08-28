@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { Plus, Edit2, Trash2, Search, RotateCcw, Download, Info, AlertTriangle, FolderTree } from 'lucide-react';
-import { Pagination, usePagination, Modal } from '@code/common';
+import { Pagination, usePagination, Modal, EmptyState } from '@code/common';
+
 import { apiFetch } from '../api/client';
 
 const modelRegex = /^[a-zA-Z]{1,2}:?[0-9]+$/;
@@ -220,7 +221,7 @@ export default function DeviceTypePage() {
   const paginatedData = data.slice((page - 1) * pageSize, page * pageSize);
 
   return (
-    <div className="animate-fade-in" style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+    <div className="flex-col gap-lg w-full">
       {/* Toast 提示 */}
       {toastMessage && (
         <div style={{
@@ -244,18 +245,19 @@ export default function DeviceTypePage() {
       )}
 
       {/* 顶部 Header 区 */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '1rem' }}>
+      <div className="flex-between flex-wrap gap-md">
         <div>
-          <h2 style={{ fontSize: '1.5rem', fontWeight: 700, margin: '0 0 0.35rem 0', color: 'var(--text-color)', display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
-            <FolderTree size={24} color="var(--primary-color)" />
+          <h2 className="flex-center text-primary" style={{ justifyContent: 'flex-start', fontSize: '1.5rem', fontWeight: 700, margin: '0 0 0.35rem 0', gap: '0.6rem' }}>
+            <FolderTree size={24} color="var(--color-primary)" />
             设备类型管理 (Machine Types)
           </h2>
-          <p style={{ margin: 0, fontSize: '0.875rem', color: 'var(--text-secondary)' }}>
+          <p className="text-secondary" style={{ margin: 0, fontSize: '0.875rem' }}>
             统一管控硬件产品规格型号定义、ID 字母前缀与大类属性
           </p>
         </div>
-        <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
+        <div className="flex-center gap-sm">
           <button
+            type="button"
             className="btn btn-primary"
             disabled={!isAdmin}
             onClick={handleCreate}
@@ -265,7 +267,8 @@ export default function DeviceTypePage() {
             新建设备类型
           </button>
           <button
-            className="btn btn-success"
+            type="button"
+            className="btn btn-secondary"
             onClick={handleExport}
           >
             <Download size={15} />
@@ -275,44 +278,46 @@ export default function DeviceTypePage() {
       </div>
 
       {/* 顶部独立搜索栏 Card */}
-      <div className="pdm-card" style={{ padding: '14px 20px', display: 'flex', flexWrap: 'wrap', gap: '0.75rem', alignItems: 'center' }}>
-        <div style={{ position: 'relative', width: '220px' }}>
-          <input
-            type="text"
-            className="pdm-input"
-            placeholder="按设备型号搜索..."
-            value={searchModel}
-            onChange={(e) => setSearchModel(e.target.value)}
-            onKeyDown={(e) => e.key === 'Enter' && fetchData()}
-            style={{ paddingLeft: '2rem' }}
-          />
-          <Search size={14} style={{ position: 'absolute', left: '0.65rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-secondary)' }} />
-        </div>
+      <div className="code-card flex-between flex-wrap gap-md" style={{ padding: '14px 20px' }}>
+        <div className="flex-center gap-md flex-wrap">
+          <div style={{ position: 'relative', width: '220px' }}>
+            <input
+              type="text"
+              className="code-input w-full"
+              placeholder="按设备型号搜索..."
+              value={searchModel}
+              onChange={(e) => setSearchModel(e.target.value)}
+              onKeyDown={(e) => e.key === 'Enter' && fetchData()}
+              style={{ paddingLeft: '2rem' }}
+            />
+            <Search size={14} className="text-secondary" style={{ position: 'absolute', left: '0.65rem', top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none' }} />
+          </div>
 
-        <div style={{ position: 'relative', width: '220px' }}>
-          <input
-            type="text"
-            className="pdm-input"
-            placeholder="按大类名称搜索..."
-            value={searchName}
-            onChange={(e) => setSearchName(e.target.value)}
-            onKeyDown={(e) => e.key === 'Enter' && fetchData()}
-            style={{ paddingLeft: '2rem' }}
-          />
-          <Search size={14} style={{ position: 'absolute', left: '0.65rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-secondary)' }} />
-        </div>
+          <div style={{ position: 'relative', width: '220px' }}>
+            <input
+              type="text"
+              className="code-input w-full"
+              placeholder="按大类名称搜索..."
+              value={searchName}
+              onChange={(e) => setSearchName(e.target.value)}
+              onKeyDown={(e) => e.key === 'Enter' && fetchData()}
+              style={{ paddingLeft: '2rem' }}
+            />
+            <Search size={14} className="text-secondary" style={{ position: 'absolute', left: '0.65rem', top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none' }} />
+          </div>
 
-        <button className="btn btn-primary" onClick={fetchData}>
-          <Search size={14} />
-          查询
-        </button>
-        <button className="btn btn-outline" onClick={handleResetSearch}>
-          <RotateCcw size={14} />
-          重置
-        </button>
+          <button type="button" className="btn btn-primary" onClick={fetchData}>
+            <Search size={14} />
+            查询
+          </button>
+          <button type="button" className="btn btn-secondary" onClick={handleResetSearch}>
+            <RotateCcw size={14} />
+            重置
+          </button>
+        </div>
 
         {!isAdmin && (
-          <span className="pdm-tag pdm-tag-warning" style={{ marginLeft: 'auto' }}>
+          <span className="code-badge code-badge--warning">
             <AlertTriangle size={12} />
             只读模式：仅管理员支持编辑
           </span>
@@ -320,9 +325,9 @@ export default function DeviceTypePage() {
       </div>
 
       {/* 数据展示表格与分页 Card */}
-      <div className="pdm-card" style={{ padding: 0, overflow: 'hidden' }}>
-        <div className="pdm-table-wrapper" style={{ border: 'none', borderRadius: 0 }}>
-          <table className="pdm-table">
+      <div className="code-card overflow-hidden">
+        <div className="overflow-x-auto">
+          <table className="code-table">
             <thead>
               <tr>
                 <th style={{ width: '160px' }}>设备型号</th>
@@ -336,40 +341,43 @@ export default function DeviceTypePage() {
             <tbody>
               {loading ? (
                 <tr>
-                  <td colSpan={6} style={{ textAlign: 'center', padding: '3rem 1rem', color: 'var(--text-secondary)' }}>
+                  <td colSpan={6} style={{ textAlign: 'center', padding: '3rem 1rem' }} className="text-secondary">
                     正在加载设备类型数据...
                   </td>
                 </tr>
               ) : paginatedData.length === 0 ? (
-                <tr>
-                  <td colSpan={6} style={{ textAlign: 'center', padding: '3rem 1rem', color: 'var(--text-secondary)' }}>
-                    未检索到设备类型数据
-                  </td>
-                </tr>
+                <EmptyState
+                  inTable
+                  colSpan={6}
+                  title="未检索到设备类型数据"
+                  description="可调整筛选项或点击右上角新建设备类型"
+                />
               ) : (
                 paginatedData.map((item) => (
                   <tr key={item.id}>
                     <td>
-                      <span className="pdm-tag pdm-tag-blue" style={{ fontFamily: 'monospace', fontWeight: 700, fontSize: '0.85rem' }}>
+                      <span className="code-badge code-badge--primary" style={{ fontFamily: 'var(--font-family-mono, monospace)', fontWeight: 700, fontSize: '0.85rem' }}>
                         {item.model}
                       </span>
                     </td>
                     <td>
-                      <strong style={{ color: 'var(--primary-color)', fontSize: '0.95rem' }}>{item.letter}</strong>
+                      <strong style={{ color: 'var(--color-primary)', fontSize: '0.95rem' }}>{item.letter}</strong>
                     </td>
                     <td>
-                      <strong style={{ color: 'var(--text-color)' }}>{item.name}</strong>
+                      <strong className="text-primary">{item.name}</strong>
                     </td>
-                    <td style={{ color: 'var(--text-secondary)', maxWidth: '320px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }} title={item.description}>
-                      {item.description || <span style={{ fontStyle: 'italic', opacity: 0.6 }}>暂无描述</span>}
+                    <td className="text-secondary text-truncate" style={{ maxWidth: '320px' }} title={item.description}>
+                      {item.description || <span className="text-muted" style={{ fontStyle: 'italic' }}>暂无描述</span>}
                     </td>
-                    <td style={{ color: 'var(--text-secondary)', fontSize: '0.8rem' }}>
+                    <td className="text-secondary" style={{ fontSize: '0.8rem' }}>
                       {item.created_at ? new Date(item.created_at).toLocaleString('zh-CN') : '-'}
                     </td>
                     <td style={{ textAlign: 'right' }}>
-                      <div style={{ display: 'inline-flex', gap: '0.4rem', justifyContent: 'flex-end' }}>
+                      <div className="flex-center gap-xs" style={{ justifyContent: 'flex-end' }}>
                         <button
-                          className="btn btn-text"
+                          type="button"
+                          className="btn btn-secondary"
+                          style={{ padding: '4px 8px', fontSize: 12 }}
                           disabled={!isAdmin}
                           onClick={() => handleEdit(item)}
                           title={!isAdmin ? '需要管理员权限' : '编辑此类型'}
@@ -378,7 +386,9 @@ export default function DeviceTypePage() {
                           编辑
                         </button>
                         <button
-                          className="btn btn-text btn-text-danger"
+                          type="button"
+                          className="btn btn-danger"
+                          style={{ padding: '4px 8px', fontSize: 12 }}
                           disabled={!isAdmin}
                           onClick={() => handleDelete(item)}
                           title={!isAdmin ? '需要管理员权限' : '删除此类型'}
