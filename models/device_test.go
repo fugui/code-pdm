@@ -6,20 +6,19 @@ import (
 	"testing"
 	"time"
 
-	"code-pdm/config"
+	"code-common/backend/testdb"
 	"code-pdm/utils"
 
 	"gorm.io/gorm"
 )
 
 func TestDeviceIDConcurrencySafety(t *testing.T) {
-	// 1. 初始化临时测试配置
-	_ = config.LoadConfig("../config.yaml")
-	InitDB()
-
-	// 清空历史数据并创建一条设备类型
-	DB.Session(&gorm.Session{AllowGlobalUpdate: true}).Delete(&Device{})
-	DB.Session(&gorm.Session{AllowGlobalUpdate: true}).Delete(&DeviceType{})
+	// 1. 初始化独立临时测试数据库与表结构
+	db := testdb.SetupIsolatedDB(t, "code_pdm", &DeviceType{}, &Device{})
+	if db == nil {
+		return
+	}
+	DB = db
 
 	dt := DeviceType{
 		Model:       "T:1",
